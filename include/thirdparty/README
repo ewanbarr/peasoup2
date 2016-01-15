@@ -1,0 +1,5 @@
+The fftw3.h file contains the normal fftw3.h file plus a fix that can be found here:
+
+https://github.com/FFTW/fftw3/commit/07ef78dc1b273a40fb4f7db1797d12d3423b1f40
+
+The fix is needed as NVCC does not support __float128
