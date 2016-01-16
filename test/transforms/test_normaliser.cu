@@ -39,7 +39,7 @@ void test_case(size_t size)
     }
     
     type::FrequencySeries<system,complex> x=input;
-    type::FrequencySeries<system,complex> y;
+    type::FrequencySeries<system,complex>& y = x;
     type::FrequencySeries<system,T> z=baseline;
     
     transform::Normaliser<system,T> normaliser(x,y,z);

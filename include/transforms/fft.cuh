@@ -3,6 +3,9 @@
 
 #include "thrust/complex.h"
 
+#include "cufft.h"
+#include "thirdparty/fftw3.h"
+
 #include "misc/system.cuh"
 #include "data_types/timeseries.cuh"
 #include "data_types/frequencyseries.cuh"
