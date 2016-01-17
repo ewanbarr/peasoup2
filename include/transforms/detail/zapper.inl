@@ -34,6 +34,7 @@ namespace peasoup {
 		upper =std::min(bin+binw,(int)size);
 		for (int ii=lower;ii<upper;ii++)
 		    bins.push_back(ii);
+		printf("Preparing to zap %f Hz (bins: %d -- %d)\n",freq,lower,upper);
 	    }
 	}
 	

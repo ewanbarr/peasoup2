@@ -129,7 +129,7 @@ namespace peasoup {
 	    boundaries.clear();
 	    float tobs = 1/input.metadata.binwidth;
 	    float nyquist = input.metadata.binwidth * input.data.size();
-	    unsigned k = 5;
+	    unsigned k = 10;
 	    unsigned power = 1;
 	    unsigned window;
 	    size_t boundary_idx;
@@ -139,6 +139,7 @@ namespace peasoup {
 		boundary = SPEED_OF_LIGHT * window / (k * accel_max * tobs * tobs);
 		boundary_idx = min((unsigned) (boundary/input.metadata.binwidth), (unsigned) input.data.size());
 		boundaries.push_back(boundary_idx);
+		printf("Boundary: %f Hz (%d) power %d\n",boundary,boundary_idx,window);
 		medians.push_back( vector_type(input.data.size()/window) );
 		if (boundary>nyquist)
 			break;

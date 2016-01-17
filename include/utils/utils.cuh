@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <sstream>
 #include <execinfo.h>
+#include <algorithm>
+#include <iterator>
 
 #include "cuda.h"
 #include "cufft.h"
@@ -115,14 +117,20 @@ namespace peasoup {
 	}
 
 	template <class VectorType>
-	void dump_vector(VectorType out, std::string filename){
-	    typedef typename VectorType::value_type T;
-	    SystemVector<HOST,T> data = out;
-	    std::ofstream infile;
-	    infile.open(filename.c_str(),std::ifstream::out | std::ifstream::binary);
-	    infile.write((char*)&out[0], out.size()*sizeof(T));
-	    infile.close();
+	void write_vector(VectorType& out, std::string filename){
+	    std::ofstream FILE(filename, std::ios::out | std::ofstream::binary);
+	    check_file_error(FILE,filename);
+	    FILE.write(reinterpret_cast<char*>(&out[0]), out.size()*sizeof(typename VectorType::value_type)); 
+	    FILE.close();
 	}
+	
+	/*
+	template <class VectorType>
+        void read_vector(VectorType& in, std::string filename){
+	    std::ifstream INFILE(filename, std::ios::in | std::ifstream::binary);
+	    std::istreambuf_iterator<typename VectorType::value_type> iter(INFILE);
+	    std::copy(iter.begin(), iter.end(), std::back_inserter(in));
+	    }*/
 
 	int gpu_count(){
 	    int count;

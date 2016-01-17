@@ -7,12 +7,18 @@ namespace peasoup {
 	    template <typename T>
 	    inline __host__ __device__
 	    T complex_abs<T>::operator()(const thrust::complex<T> &x) const 
-	    {return thrust::abs<T>(x);}
+	    {
+		T val = thrust::abs<T>(x);
+		return val*val;
+	    }
 
 	    template <typename T>
 	    inline __host__ __device__
 	    T interpolate_spectrum<T>::operator()(const thrust::complex<T> &x, const thrust::complex<T> &y) const 
-	    { return thrust::max<T>(thrust::abs<T>(x-y)*RSQRT2,thrust::abs<T>(x)); }
+	    { 
+		T val = thrust::max<T>(thrust::abs<T>(x-y)*RSQRT2,thrust::abs<T>(x)); 
+		return val*val;
+	    }
 	    
 	} // namespace functor
 	

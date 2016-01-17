@@ -2,6 +2,7 @@
 #define PEASOUP_FFT_CUH
 
 #include "thrust/complex.h"
+#include "thrust/functional.h"
 
 #include "cufft.h"
 #include "thirdparty/fftw3.h"
@@ -12,7 +13,20 @@
 
 namespace peasoup {
     namespace transform {
-	
+	namespace functor {
+	    
+	    template <typename T>
+	    struct multiply_by_constant: thrust::unary_function<T,T>
+	    {
+		float constant;
+		multiply_by_constant(float constant)
+		    :constant(constant){}
+		inline __host__ __device__
+		T operator()(T val) const {return val*constant;}
+	    };
+		
+	} // namespace functor
+
 	class FFTBase
 	{
 	public:
@@ -41,6 +55,7 @@ namespace peasoup {
         {
         protected:
             cufftHandle plan;
+	    SystemPolicy<DEVICE> policy_traits;
             FFTDerivedBase():plan(0){}
             ~FFTDerivedBase(){ if (plan==0) cufftDestroy(plan); }
 	    virtual void execute()=0;
@@ -53,12 +68,16 @@ namespace peasoup {
 	private:
 	    type::TimeSeries<system, float >& input;
 	    type::FrequencySeries<system, thrust::complex<float> >& output;
+	    SystemPolicy<system> policy_traits;
+	    bool normalise;
 	    void _prepare();
+	    void _normalise();
 	    
 	public:
 	    RealToComplexFFT(type::TimeSeries<system, float >& input,
-			     type::FrequencySeries<system, thrust::complex<float> >& output)
-		:input(input),output(output){}
+			     type::FrequencySeries<system, thrust::complex<float> >& output,
+			     bool normalise=true)
+		:input(input),output(output),normalise(normalise){}
 	    void prepare();
 	    void execute();
 	};
@@ -69,12 +88,16 @@ namespace peasoup {
         private:
 	    type::FrequencySeries<system, thrust::complex<float> >& input;
 	    type::TimeSeries<system, float >& output;
+	    SystemPolicy<system> policy_traits;
+	    bool normalise;
 	    void _prepare();
+	    void _normalise();
 
         public:
 	    ComplexToRealFFT(type::FrequencySeries<system, thrust::complex<float> >& input,
-			    type::TimeSeries<system, float >& output)
-		:input(input),output(output){}
+			     type::TimeSeries<system, float >& output,
+			     bool normalise=true)
+		:input(input),output(output),normalise(normalise){}
             void prepare();
 	    void execute();
         };

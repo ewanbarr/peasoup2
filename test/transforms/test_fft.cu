@@ -11,7 +11,8 @@
 #include "data_types/frequencyseries.cuh"
 #include "data_types/timeseries.cuh"
 #include "transforms/fft.cuh"
-
+#include "utils/utils.cuh"
+#include "tvgs/timeseries_generator.cuh"
 
 using namespace peasoup;
 
@@ -43,7 +44,7 @@ void test_case(size_t size)
     ASSERT_EQ(din.metadata.acc,dout.metadata.acc);
     ASSERT_EQ(dout.data.size(),din.data.size()/2+1);
     r2cfft.execute();
-    
+
     transform::ComplexToRealFFT<system> c2rfft(dout,din);
     c2rfft.prepare();
     size_t new_size = 2*(dout.data.size() - 1);
@@ -58,7 +59,7 @@ void test_case(size_t size)
     for (ii=0;ii<size;ii++)
 	{
 	    float in = hin.data[ii];
-	    float out = hout.data[ii]/size;
+	    float out = hout.data[ii];
 	    ASSERT_NEAR(in,out,0.0001);
 	}
 

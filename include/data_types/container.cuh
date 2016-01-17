@@ -13,12 +13,10 @@ namespace peasoup {
     template <System system, typename ValueType, typename MetaDataType >
     class Container
     {
-    protected:
+    public:
 	typedef typename SystemVector<system,ValueType>::vector_type vector_type;
 	typedef ValueType value_type;
 	typedef MetaDataType metadata_type;
-
-    public:
 	vector_type data;
 	metadata_type metadata;
 

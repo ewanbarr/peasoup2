@@ -10,11 +10,11 @@ namespace peasoup {
 	template <System system>
 	Preprocessor<system>::Preprocessor(TimeSeries<system,float>& input,
 					   TimeSeries<system,float>& output,
-					   PeasoupArgs args)
+					   PeasoupArgs& args)
 	    :input(input),output(output),args(args)
 	{
 	    float max_accel = *std::max_element(args.acc_list.begin(),args.acc_list.end());
-	    if (max_accel<100) max_accel = 100.0;
+	    if (max_accel<100) max_accel = 5000.0;
 	    r2cfft = new RealToComplexFFT<system>(input,fourier);
 	    spectrum_former = new SpectrumFormer<system,float>(fourier,spectrum);
 	    baseline_finder = new BaselineFinder<system,float>(spectrum,baseline,max_accel);

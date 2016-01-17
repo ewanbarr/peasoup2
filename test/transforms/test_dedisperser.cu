@@ -46,7 +46,6 @@ void test_case2(size_t nsamps, uint8_t nbits)
     dedisp.gen_dmlist(0.0,10.0,40.0,1.05);
     const std::vector<float>& dm_list = dedisp.get_dmlist();
     for (int ii=0;ii<dm_list.size()-1;ii++){
-	printf("Generated DM (%d):  %.3f\n",ii,dm_list[ii]);
 	ASSERT_TRUE(dm_list[ii]<10.0);
     }
     dedisp.prepare();
