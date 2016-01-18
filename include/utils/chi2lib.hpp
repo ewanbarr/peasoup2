@@ -3,6 +3,8 @@
 
 /* Pilfered from Presto (Thanks Scott!) */
 
+#include "utils/cdflib.h"
+
 namespace peasoup {
     namespace cand_utils {
 	double equivalent_gaussian_sigma(double logp);

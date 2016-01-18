@@ -1,8 +1,9 @@
-#include "utils/cdflib.h"
-#include "utils/characteristics.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
+
+#include "utils/cdflib.h"
+#include "utils/chi2lib.hpp"
 
 namespace peasoup {
     namespace cand_utils {

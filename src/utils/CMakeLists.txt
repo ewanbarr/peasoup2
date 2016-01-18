@@ -1,2 +1,1 @@
-add_library(CAND_UTILS OBJECT cdflib.c characteristics.cpp)
-
+add_library(chi2lib STATIC chi2lib.cpp cdflib.cpp)
