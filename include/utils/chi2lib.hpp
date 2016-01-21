@@ -19,12 +19,12 @@ namespace peasoup {
 	/* Return the approximate significance in Gaussian sigmas        */
 	/* sigmas of a chi^2 value of chi2 given dof degrees of freedom. */
 	
-	double candidate_sigma(double power, int numsum, double numtrials);
+	double candidate_sigma(double power, int numsum, double numtrials, bool nn);
 	/* Return the approximate significance in Gaussian       */
 	/* sigmas of a candidate of numsum summed powers,        */
 	/* taking into account the number of independent trials. */
 	
-	double power_for_sigma(double sigma, int numsum, double numtrials);
+	double power_for_sigma(double sigma, int numsum, double numtrials, bool nn);
 	/* Return the approximate summed power level required */
 	/* to get a Gaussian significance of 'sigma', taking  */
 	/* into account the number of independent trials.     */

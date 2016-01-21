@@ -1,13 +1,14 @@
 #ifndef PEASOUP_METADATA_CUH
 #define PEASOUP_METADATA_CUH
 
-#include <vector>
+#include <map>
+#include <string>
 
 namespace peasoup {
     
     struct MetaData 
     {
-	float center_freq;
+	std::map<std::string,std::string> original;
     };
 
 } 

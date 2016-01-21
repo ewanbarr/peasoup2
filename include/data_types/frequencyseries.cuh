@@ -12,6 +12,7 @@ namespace peasoup {
 	    float binwidth;
 	    float dm;
 	    float acc;
+	    float nn;
 	};
 	
 	template <System system, typename ValueType>

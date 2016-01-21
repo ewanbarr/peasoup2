@@ -36,14 +36,17 @@ namespace peasoup {
 	    thrust::transform(policy_traits.policy,input.data.begin()+1,
 			      input.data.end(),input.data.begin(),output.data.begin()+1,
 			      functor::interpolate_spectrum<T>());
+	    output.metadata.nn = true;
 	}
 	
 	template <System system, typename T>
 	void SpectrumFormer<system,T>::form()
 	{
+	    output.data[0] = 0;
 	    thrust::transform(policy_traits.policy,input.data.begin(),
 			      input.data.end(),output.data.begin(),
 			      functor::complex_abs<T>());
+	    output.metadata.nn = false;
 	}
 		
     } //transform

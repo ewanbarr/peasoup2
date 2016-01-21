@@ -24,6 +24,7 @@ void test_case()
     hinput.metadata.tsamp = 0.000064;
     generator::make_noise(hinput,0.0f,1.0f,0.9999f);
     generator::add_tone(hinput,123.0f);
+    
     type::TimeSeries<system,float> input = hinput;
     pipeline::Preprocessor<system> preproc(input,input,args);
     preproc.prepare();

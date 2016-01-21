@@ -4,6 +4,7 @@
 
 #include "utils/cdflib.h"
 #include "utils/chi2lib.hpp"
+#include "misc/constants.h"
 
 namespace peasoup {
     namespace cand_utils {
@@ -165,7 +166,7 @@ namespace peasoup {
 	}
 	
 	
-	double candidate_sigma(double power, int numsum, double numtrials)
+	double candidate_sigma(double power, int numsum, double numtrials, bool nn=false)
 	/* Return the approximate significance in Gaussian       */
 	/* sigmas of a candidate of numsum summed powers,        */
 	/* taking into account the number of independent trials. */
@@ -177,8 +178,12 @@ namespace peasoup {
 	    }
 	    
 	    // Get the natural log probability
-	    chi2 = 2.0 * power;
-	    dof = 2.0 * numsum;
+	    //chi2 = 2.0 * power; <--- EWAN: CHANGED FOR PEASOUP
+	    chi2 = power;
+	    if (nn) 
+		dof = (2.0+SQRT2) * numsum;
+	    else  
+		dof = 2.0 * numsum;
 	    logp = chi2_logp(chi2, dof);
 	    
 	    // Correct for numtrials
@@ -188,8 +193,7 @@ namespace peasoup {
 	    return equivalent_gaussian_sigma(logp);
 	}
 	
-	
-	double power_for_sigma(double sigma, int numsum, double numtrials)
+	double power_for_sigma(double sigma, int numsum, double numtrials, bool nn=false)
 	/* Return the approximate summed power level required */
 	/* to get a Gaussian significance of 'sigma', taking  */
 	/* into account the number of independent trials.     */
@@ -209,8 +213,19 @@ namespace peasoup {
 	    }
 	    q = q / numtrials;
 	    p = 1.0 - q;
+	    
+	    /* for data that has undergone nearest neighbour 
+	       comparison, the p and q values should become
+	       p = p*p;
+	       q = 1.0 - p;
+	       as CDF_chi2_nn(x) = CDF_chi2(x)^2
+	    */
+
 	    which = 2;
-	    df = 2.0 * numsum;
+	    if (nn)
+                df = (2.0+SQRT2) * numsum;
+            else
+                df = 2.0 * numsum;
 	    status = 0;
 	    cdfchi(&which, &p, &q, &x, &df, &status, &bound);
 	    if (status) {
@@ -220,9 +235,9 @@ namespace peasoup {
 		       p, q, x, df, scale);
 		exit(1);
 	    }
-	    return 0.5 * x;
+	    //return 0.5 * x; <-- EWAN: CHANGED FOR PEASOUP
+	    return x;
 	}
-	
 	
 	double chisqr(double *data, int numdata, double avg, double var)
 	/* Calculates the chi-square of the 'data' which has average */
@@ -260,3 +275,15 @@ namespace peasoup {
     } //namespace cand_utils
 } //namespace peasoup
 	
+extern "C" {
+    double powsig(double sigma, int numsum, double numtrials, bool nn)
+    {
+	return peasoup::cand_utils::power_for_sigma(sigma, numsum, numtrials, nn);
+    }
+
+    double candsig(double power, int numsum, double numtrials, bool nn)
+    {
+	return peasoup::cand_utils::candidate_sigma( power,numsum, numtrials,nn);
+    }
+
+}

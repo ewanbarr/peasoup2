@@ -40,7 +40,7 @@ namespace peasoup {
             using Parent::metadata;
 	    unsigned nbits;
 
-	    TimeFrequencyBits(unsigned nbits)
+	    TimeFrequencyBits(unsigned nbits=0)
 		:Container<system,uint8_t,TimeFrequencyMetaData>(),nbits(nbits),bits_per_byte(8/nbits){}
 	    size_t get_nsamps(){return data.size()*bits_per_byte/(metadata.nchans);}
 	};

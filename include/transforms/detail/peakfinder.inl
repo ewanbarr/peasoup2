@@ -1,4 +1,3 @@
-
 #include "utils/chi2lib.hpp"
 #include "transforms/peakfinder.cuh"
 
@@ -22,14 +21,16 @@ namespace peasoup {
 	template <System system, typename T>
 	void PeakFinder<system,T>::prepare()
 	{
-	    idxs.resize(fundamental.data.size());
-	    powers.resize(fundamental.data.size());
-	    h_idxs.resize(fundamental.data.size());
-	    h_powers.resize(fundamental.data.size());
+	    size_t size = fundamental.data.size();
+	    idxs.resize(size);
+	    powers.resize(size);
+	    h_idxs.resize(size);
+	    h_powers.resize(size);
 	    int nh = harmonics.metadata.binwidths.size();
-	    thresholds.push_back(cand_utils::power_for_sigma(minsigma,1,(float) fundamental.data.size()));
+	    bool nn = fundamental.metadata.nn;
+	    thresholds.push_back(cand_utils::power_for_sigma(minsigma, 1, (float) size, nn));
 	    for (int ii=0;ii<nh;ii++)
-		thresholds.push_back(cand_utils::power_for_sigma(minsigma,1<<(ii+1),(float) fundamental.data.size()));
+		thresholds.push_back(cand_utils::power_for_sigma(minsigma, 1<<(ii+1), (float) size, nn));
 	    for (auto i: thresholds)
 		{
 		    printf("Threshold: %f\n",i);

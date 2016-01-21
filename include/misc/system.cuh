@@ -4,6 +4,7 @@
 #include "thrust/device_vector.h"
 #include "thrust/host_vector.h"
 #include "thrust/execution_policy.h"
+#include "thrust/system/cuda/experimental/pinned_allocator.h"
 
 namespace peasoup {
     
@@ -25,7 +26,7 @@ namespace peasoup {
     template <typename T>
     struct SystemVector<HOST,T>
     { 
-	typedef thrust::host_vector<T> vector_type; 
+	typedef thrust::host_vector<T,thrust::cuda::experimental::pinned_allocator<T> > vector_type; 
 	typedef T* ptr_type;
     };
 

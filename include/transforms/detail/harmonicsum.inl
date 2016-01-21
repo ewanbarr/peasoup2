@@ -12,14 +12,14 @@ namespace peasoup {
 		if (nharms>0)
 		    {
 			val += input[(unsigned) (idx*0.5 + 0.5)];
-			output[idx] = val*rsqrt(2.0);
+			output[idx] = val;//*rsqrt(2.0);
 		    }
 		
 		if (nharms>1)
 		    {
 			val += input[(unsigned) (idx * 0.75 + 0.5)];
 			val += input[(unsigned) (idx * 0.25 + 0.5)];
-			output[size+idx] = val*0.5;
+			output[size+idx] = val;//*0.5;
 		    }
 		
 		if (nharms>2)
@@ -28,7 +28,7 @@ namespace peasoup {
 			val += input[(unsigned) (idx * 0.375 + 0.5)];
 			val += input[(unsigned) (idx * 0.625 + 0.5)];
 			val += input[(unsigned) (idx * 0.875 + 0.5)];
-			output[2*size+idx] = val*rsqrt(8.0);
+			output[2*size+idx] = val;//*rsqrt(8.0);
 		    }
 		
 		if (nharms>3)
@@ -41,7 +41,7 @@ namespace peasoup {
 			val += input[(unsigned) (idx * 0.6875 + 0.5)];
 			val += input[(unsigned) (idx * 0.8125 + 0.5)];
 			val += input[(unsigned) (idx * 0.9375 + 0.5)];
-			output[3*size+idx] = val*0.25;
+			output[3*size+idx] = val;//*0.25;
 		    }
 		
 		if (nharms>4)
@@ -62,7 +62,7 @@ namespace peasoup {
 			val += input[(unsigned) (idx * 0.84375 + 0.5)];
 			val += input[(unsigned) (idx * 0.90625 + 0.5)];
 			val += input[(unsigned) (idx * 0.96875 + 0.5)];
-			output[4*size+idx] = val*rsqrt(32.0);
+			output[4*size+idx] = val;//*rsqrt(32.0);
 		    }
 		return;
 	    }

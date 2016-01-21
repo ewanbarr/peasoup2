@@ -37,6 +37,8 @@ namespace peasoup {
 	{
 	private:
 	    typedef thrust::complex<float> complex;
+
+	public:
 	    TimeSeries<system,float>& input;
 	    TimeSeries<system,float> timeseries_r;
 	    FrequencySeries<system,complex> fourier;
@@ -49,8 +51,6 @@ namespace peasoup {
 	    HarmonicSum<system,float>* harmsum;
 	    PeakFinder<system,float>* peak_finder; 
 	    AccelSearchArgs& args;
-	    
-	public:
 	    
 	    AccelSearch(TimeSeries<system,float>& input,
 			std::vector<Detection>& dets,
@@ -78,7 +78,7 @@ namespace peasoup {
 		for (auto accel: args.acc_list){
 		    resampler->resample(accel);
 		    r2cfft->execute();
-		    spectrum_former->form_nn();
+		    spectrum_former->form();
 		    harmsum->sum();
 		    peak_finder->execute();
 		}
