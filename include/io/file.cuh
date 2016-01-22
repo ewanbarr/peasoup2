@@ -1,6 +1,7 @@
-#ifndef PEASOUP_STREAM_CUH
-#define PEASOUP_STREAM_CUH
+#ifndef PEASOUP_FILESTREAM_CUH
+#define PEASOUP_FILESTREAM_CUH
 
+#include <ios>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -12,32 +13,41 @@
 namespace peasoup {
     namespace io {
 
-	template <class StreamType>
-	void safe_open(StreamType& infile, std::string filename, ios_base::openmode mode)
+	void safe_file_open(std::fstream& file, std::string filename, std::ios_base::openmode mode)
 	{
-	    infile.open(filename.c_str(),mode);
-	    utils::check_file_error(infile,filename);
+	    file.open(filename.c_str(),mode);
+	    if(!file.good()) {
+		std::stringstream error_msg;
+                error_msg << "File "<< filename << " could not be opened: ";
+                if ( (file.rdstate() & std::fstream::failbit ) != 0 )
+                    error_msg << "Logical error on i/o operation" << std::endl;
+                if ( (file.rdstate() & std::fstream::badbit ) != 0 )
+                    error_msg << "Read/writing error on i/o operation" << std::endl;
+                if ( (file.rdstate() & std::fstream::eofbit ) != 0 )
+                    error_msg << "End-of-File reached on input operation" << std::endl;
+                throw std::runtime_error(error_msg.str());
+            }
 	}
 	
 	class FileStream: public IOStream
 	{
 	private:
-	    std::ifstream file;
+	    std::fstream file;
 	    std::string filename;
-	    ios_base::openmode mode;
-
+	    std::ios_base::openmode mode;
+	    
 	public:
-	    FileStream(std::string filename, ios_base::openmode mode = ios_base::in | std::ifstream::binary)
+	    FileStream(std::string filename, std::ios_base::openmode mode = std::ios_base::in | std::ifstream::binary)
 		:IOStream(filename),filename(filename),mode(mode){}
 	    ~FileStream(){ file.close(); }
-	    void prepare(){ safe_open<std::ifstream>(file, filename, mode); }
+	    void prepare(){ safe_file_open(file, filename, mode); }
 	    void read(char* buffer, size_t nbytes){file.read(buffer,nbytes);}
 	    void write(const char* buffer, size_t nbytes){ file.write(buffer,nbytes); }
-	    void seek(size_t offset, ios_base::seekdir way){file.seekg(offset,way);}
-            void tell(){return file.tellg();}
+	    void seekg(size_t offset, std::ios_base::seekdir way){file.seekg(offset,way);}
+            size_t tellg(){return file.tellg();}
 	};
 
     } // io
 } // peasoup
 
-#endif // PEASOUP_STREAM_CUH
+#endif // PEASOUP_FILESTREAM_CUH

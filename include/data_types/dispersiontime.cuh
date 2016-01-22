@@ -16,7 +16,17 @@ namespace peasoup {
 	};
 	
 	template <System system, typename ValueType>
-	using DispersionTime = Container<system,ValueType,DispersionTimeMetaData>;
+	class DispersionTime: public Container<system,ValueType,DispersionTimeMetaData>
+	{
+	private:
+            typedef Container<system,ValueType,DispersionTimeMetaData> Parent;
+
+        public:
+            using Parent::data;
+            using Parent::metadata;
+	    using Parent::Container;
+	    size_t get_nsamps(){return data.size()/metadata.dms.size();}
+	};
 
     } //type
 } //peasoup

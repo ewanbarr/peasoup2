@@ -33,7 +33,6 @@ namespace peasoup {
 	{
 	private:
 	    typedef Container<system,uint8_t,TimeFrequencyMetaData> Parent;
-	    unsigned bits_per_byte;
 
 	public:
 	    using Parent::data;
@@ -41,8 +40,8 @@ namespace peasoup {
 	    unsigned nbits;
 
 	    TimeFrequencyBits(unsigned nbits=0)
-		:Container<system,uint8_t,TimeFrequencyMetaData>(),nbits(nbits),bits_per_byte(8/nbits){}
-	    size_t get_nsamps(){return data.size()*bits_per_byte/(metadata.nchans);}
+		:Container<system,uint8_t,TimeFrequencyMetaData>(),nbits(nbits){}
+	    size_t get_nsamps(){return data.size()*(8/nbits)/(metadata.nchans);}
 	};
 	
 	

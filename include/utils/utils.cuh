@@ -132,12 +132,14 @@ namespace peasoup {
 	    std::copy(iter.begin(), iter.end(), std::back_inserter(in));
 	    }*/
 
+	inline
 	int gpu_count(){
 	    int count;
 	    cudaGetDeviceCount(&count);
 	    return count;
 	}
     
+	inline
 	void print_stack_trace(unsigned int max_depth){
 	    int trace_depth;
 	    void *buffer[max_depth];

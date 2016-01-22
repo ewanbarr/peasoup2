@@ -10,7 +10,6 @@
 #include "data_types/timeseries.cuh"
 #include "data_types/frequencyseries.cuh"
 #include "data_types/harmonicseries.cuh"
-#include "utils/utils.cuh"
 #include "tvgs/timeseries_generator.cuh"
 
 using namespace peasoup;
@@ -36,22 +35,15 @@ void test_case()
     type::TimeSeries<system,float> input = hinput;
     std::vector<type::Detection> dets;
     
-    //pipeline::Preprocessor<system> preproc(input,input,args2);
+    pipeline::Preprocessor<system> preproc(input,input,args2);
     pipeline::AccelSearch<system> accsearch(input,dets,args);
-    //preproc.prepare();
+    preproc.prepare();
     accsearch.prepare();
-    //preproc.run();
+    preproc.run();
     accsearch.run();
-
-
     type::FrequencySeries<HOST,thrust::complex<float> > fourier = accsearch.fourier;
     type::FrequencySeries<HOST,float> spec = accsearch.spectrum;
     type::HarmonicSeries<HOST,float> hsum = accsearch.harmonics;
-
-    printf("%d\n",hsum.data.size());
-    utils::write_vector<decltype(hsum.data)>(hsum.data,"harmonics.bin");
-    utils::write_vector<decltype(spec.data)>(spec.data,"spectrum.bin");
-    utils::write_vector<decltype(fourier.data)>(fourier.data,"fourier.bin");
     for (auto& i:dets){
 	printf("nh: %d    freq: %f     pow: %f\n",i.nh,i.freq,i.power);
     }

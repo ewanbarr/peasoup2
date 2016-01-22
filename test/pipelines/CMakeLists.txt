@@ -4,7 +4,8 @@ link_directories(${GTEST_LIBRARY_DIR})
 set(
     gtest_pipelines_src
 #    test_preprocessor.cu
-    test_accelsearcher.cu
+#    test_accelsearcher.cu
+    test_dmtrialqueue.cu
     gtest_pipelines.cu
     )
 
