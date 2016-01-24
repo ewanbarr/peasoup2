@@ -1,5 +1,8 @@
-#include "pipelines/preprocessor.cuh"
 #include <algorithm>
+#include "pipelines/preprocessor.cuh"
+
+#include "utils/nvtx.hpp"
+
 
 namespace peasoup {
     namespace pipeline {
@@ -10,7 +13,7 @@ namespace peasoup {
 	template <System system>
 	Preprocessor<system>::Preprocessor(TimeSeries<system,float>& input,
 					   TimeSeries<system,float>& output,
-					   PeasoupArgs& args)
+					   AccelSearchArgs& args)
 	    :input(input),output(output),args(args)
 	{
 	    float max_accel = *std::max_element(args.acc_list.begin(),args.acc_list.end());
@@ -48,12 +51,14 @@ namespace peasoup {
 	template <System system>
         void Preprocessor<system>::run()
 	{
+	    PUSH_NVTX_RANGE(__PRETTY_FUNCTION__,1)
 	    r2cfft->execute();
 	    spectrum_former->form();
 	    baseline_finder->find_baseline();
 	    normaliser->normalise();
 	    zapper->execute();
 	    c2rfft->execute();
+	    POP_NVTX_RANGE
 	}
 
     } // pipeline

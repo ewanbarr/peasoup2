@@ -11,19 +11,13 @@
 #include "transforms/spectrumformer.cuh"
 #include "transforms/harmonicsum.cuh"
 #include "transforms/peakfinder.cuh"
+#include "pipelines/args.hpp"
 
 namespace peasoup {
     namespace pipeline {
 	
 	using namespace type;
 	using namespace transform;
-
-	struct AccelSearchArgs
-	{
-	    std::vector<float> acc_list;
-	    float minsigma;
-	    int nharm;
-	};
 
 	/* 
 	   The AccelSearch class expects whitened data as input.

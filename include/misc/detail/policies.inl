@@ -3,13 +3,13 @@
 namespace peasoup {
     namespace policy {
 
-	cached_allocator::~cached_allocator()
+	inline cached_allocator::~cached_allocator()
 	{
 	    // free all allocations when cached_allocator goes out of scope
 	    free_all();
 	}
-
-	char *cached_allocator::allocate(std::ptrdiff_t num_bytes)
+	
+	inline char *cached_allocator::allocate(std::ptrdiff_t num_bytes)
 	{
 	    char *result = 0;
 	    
@@ -46,7 +46,7 @@ namespace peasoup {
 	    return result;
 	}
 	
-	void cached_allocator::deallocate(char *ptr, size_t n)
+	inline void cached_allocator::deallocate(char *ptr, size_t n)
 	{
 	    // erase the allocated block from the allocated blocks map
 	    allocated_blocks_type::iterator iter = allocated_blocks.find(ptr);
@@ -57,7 +57,7 @@ namespace peasoup {
 	    free_blocks.insert(std::make_pair(num_bytes, ptr));
 	}
 	
-	void cached_allocator::free_all()
+	inline void cached_allocator::free_all()
 	{
 	    
 	    // deallocate all outstanding blocks in both lists

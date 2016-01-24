@@ -9,6 +9,7 @@
 #include "pipelines/preprocessor.cuh"
 #include "data_types/timeseries.cuh"
 #include "data_types/frequencyseries.cuh"
+#include "data_types/candidates.cuh"
 #include "data_types/harmonicseries.cuh"
 #include "tvgs/timeseries_generator.cuh"
 
@@ -22,9 +23,6 @@ void test_case()
     args.minsigma = 6.0;
     args.nharm = 4;
 
-    PeasoupArgs args2;
-    args2.acc_list.push_back(1.0);
-
     type::TimeSeries<HOST,float> hinput;
     hinput.data.resize(1<<21);
     hinput.metadata.tsamp = 0.000064;
@@ -35,7 +33,7 @@ void test_case()
     type::TimeSeries<system,float> input = hinput;
     std::vector<type::Detection> dets;
     
-    pipeline::Preprocessor<system> preproc(input,input,args2);
+    pipeline::Preprocessor<system> preproc(input,input,args);
     pipeline::AccelSearch<system> accsearch(input,dets,args);
     preproc.prepare();
     accsearch.prepare();

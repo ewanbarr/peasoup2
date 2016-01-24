@@ -5,6 +5,7 @@
 
 #include "misc/system.cuh"
 #include "pipelines/preprocessor.cuh"
+#include "pipelines/args.hpp"
 #include "data_types/timeseries.cuh"
 #include "utils/utils.cuh"
 #include "tvgs/timeseries_generator.cuh"
@@ -16,7 +17,7 @@ typedef std::pair<float,float> bird;
 template <System system>
 void test_case()
 {
-    PeasoupArgs args;
+    pipeline::AccelSearchArgs args;
     args.acc_list.push_back(1.0);
     args.birdies.push_back(bird(123.0,0.2));
     type::TimeSeries<HOST,float> hinput;

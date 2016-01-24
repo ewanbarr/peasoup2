@@ -21,6 +21,8 @@ namespace peasoup {
 	    
 	    template <typename TimeSeriesType>
 	    bool pop(TimeSeriesType& timeseries);
+	    size_t get_nsamps(){return trials.get_nsamps();}
+	    float get_tsamp(){return trials.metadata.tsamp;}
 	};
     } //pipeline 
 } //peasoup

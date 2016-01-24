@@ -12,14 +12,9 @@
 #include "transforms/baselinefinder.cuh"
 #include "transforms/spectrumformer.cuh"
 #include "transforms/zapper.cuh"
+#include "pipelines/args.hpp"
 
 namespace peasoup {
-
-    struct PeasoupArgs
-    {
-	std::vector<float> acc_list;
-	std::vector<std::pair<float,float> > birdies;
-    };
 
     namespace pipeline {
 
@@ -42,12 +37,12 @@ namespace peasoup {
 	    BaselineFinder<system,float>* baseline_finder;
 	    RealToComplexFFT<system>* r2cfft;
 	    ComplexToRealFFT<system>* c2rfft;
-	    PeasoupArgs& args;
+	    AccelSearchArgs& args;
 
 	public:
 	    Preprocessor(TimeSeries<system,float>& input,
 			 TimeSeries<system,float>& output,
-			 PeasoupArgs& args);
+			 AccelSearchArgs& args);
 	    ~Preprocessor();
 	    void prepare();
 	    void run();
