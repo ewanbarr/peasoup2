@@ -10,6 +10,8 @@
 #include "misc/system.cuh"
 #include "data_types/timeseries.cuh"
 #include "data_types/frequencyseries.cuh"
+#include "transforms/transform_base.cuh"
+#include "utils/printer.hpp"
 
 namespace peasoup {
     namespace transform {
@@ -27,20 +29,14 @@ namespace peasoup {
 		
 	} // namespace functor
 
-	class FFTBase
-	{
-	public:
-	    virtual void prepare()=0;
-	    virtual void execute()=0;
-	};
 	
 	template <System system>
-	class FFTDerivedBase: public FFTBase
+	class FFTDerivedBase: public Transform<system>
 	{  
 	};
 
 	template <>
-        class FFTDerivedBase<HOST>: public FFTBase
+        class FFTDerivedBase<HOST>: public Transform<HOST>
         {
         protected:
             fftwf_plan plan;
@@ -51,7 +47,7 @@ namespace peasoup {
         };
 
         template <>
-        class FFTDerivedBase<DEVICE>: public FFTBase
+        class FFTDerivedBase<DEVICE>: public Transform<DEVICE>
         {
         protected:
             cufftHandle plan;

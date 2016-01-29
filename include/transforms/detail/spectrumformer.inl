@@ -25,28 +25,27 @@ namespace peasoup {
 	template <System system, typename T>
 	void SpectrumFormer<system,T>::prepare()
 	{
+	    utils::print(__PRETTY_FUNCTION__,"\n");
+            input.metadata.display();
 	    output.data.resize(input.data.size());
 	    output.metadata = input.metadata;
+	    output.metadata.nn = nn;
+	    output.metadata.display();
 	}
 	
 	template <System system, typename T>
-	void SpectrumFormer<system,T>::form_nn()
+	void SpectrumFormer<system,T>::execute()
 	{ 
+	    if (nn){
+		thrust::transform(this->get_policy(),input.data.begin()+1,
+				  input.data.end(),input.data.begin(),output.data.begin()+1,
+				  functor::interpolate_spectrum<T>());
+	    } else {
+		thrust::transform(this->get_policy(),input.data.begin(),
+				  input.data.end(),output.data.begin(),
+				  functor::complex_abs<T>());
+	    }
 	    output.data[0] = 0;
-	    thrust::transform(policy_traits.policy,input.data.begin()+1,
-			      input.data.end(),input.data.begin(),output.data.begin()+1,
-			      functor::interpolate_spectrum<T>());
-	    output.metadata.nn = true;
-	}
-	
-	template <System system, typename T>
-	void SpectrumFormer<system,T>::form()
-	{
-	    output.data[0] = 0;
-	    thrust::transform(policy_traits.policy,input.data.begin(),
-			      input.data.end(),output.data.begin(),
-			      functor::complex_abs<T>());
-	    output.metadata.nn = false;
 	}
 		
     } //transform

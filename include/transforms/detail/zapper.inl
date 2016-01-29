@@ -22,6 +22,9 @@ namespace peasoup {
 	template <System system, typename T>
 	void Zapper<system,T>::prepare()
 	{
+	    utils::print(__PRETTY_FUNCTION__,"\n");
+	    input.metadata.display();
+	    utils::print("Nbirds: ",birdies.size(),"\n");
 	    unsigned lower,upper;
 	    float df = input.metadata.binwidth;
 	    unsigned size = input.data.size();
@@ -34,16 +37,20 @@ namespace peasoup {
 		upper =std::min(bin+binw,(int)size);
 		for (int ii=lower;ii<upper;ii++)
 		    bins.push_back(ii);
-		printf("Preparing to zap %f Hz (bins: %d -- %d)\n",freq,lower,upper);
 	    }
+	    utils::print("done\n");
 	}
 	
 	template <System system, typename T>
 	void Zapper<system,T>::execute()
 	{
-	    thrust::complex<T>* ar = thrust::raw_pointer_cast(input.data.data());
-	    thrust::for_each(policy_traits.policy,bins.begin(),bins.end(),
-			     functor::zapper_functor<T>(ar));
+	    if (bins.size()==0) 
+		return;
+	    else {
+		thrust::complex<T>* ar = thrust::raw_pointer_cast(input.data.data());
+		thrust::for_each(this->get_policy(),bins.begin(),bins.end(),
+				 functor::zapper_functor<T>(ar));
+	    }
 	}
 
     } // namespace transform

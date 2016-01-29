@@ -54,8 +54,9 @@ void test_case(size_t size)
     ASSERT_EQ(din.metadata.acc,dout.metadata.acc);
     ASSERT_EQ(din.data.size(),new_size);
     c2rfft.execute();
-    
     type::TimeSeries<HOST,float> hout = din;
+    utils::check_cuda_error(__PRETTY_FUNCTION__);
+    
     for (ii=0;ii<size;ii++)
 	{
 	    float in = hin.data[ii];

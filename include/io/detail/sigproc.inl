@@ -39,6 +39,20 @@ namespace peasoup {
 		c_str[len] = '\0';
 		str = c_str;
 	    }
+
+	    sigproc_dtype get_data_type(IOStream* stream)
+	    {
+		SigprocHeader header = read_header(stream);
+		stream->seekg(0,std::ios::beg);
+		switch (header.data_type) {
+		case 1:
+		    return sigproc_dtype::FILTERBANK;
+		case 2:
+		    return sigproc_dtype::TIMESERIES;
+		default:
+		    return sigproc_dtype::UNKNOWN;
+		}
+	    }
 	
 	    SigprocHeader read_header(IOStream* stream)
 	    {

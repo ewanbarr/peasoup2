@@ -71,6 +71,8 @@ namespace peasoup {
 	template <System system, typename T>
 	void HarmonicSum<system,T>::prepare()
 	{
+	    utils::print(__PRETTY_FUNCTION__,"\n");
+	    input.metadata.display();
 	    output.data.resize(input.data.size()*nharms);
 	    output.metadata.binwidths.clear();
 	    for (int ii=0;ii<nharms;ii++)
@@ -79,14 +81,16 @@ namespace peasoup {
 	    output.metadata.acc = input.metadata.acc;
 	    input_ptr = thrust::raw_pointer_cast(input.data.data());
 	    output_ptr = thrust::raw_pointer_cast(output.data.data());
+	    output.metadata.display();
 	}
 	
 	template <System system, typename T>
-        void HarmonicSum<system,T>::sum()
+        void HarmonicSum<system,T>::execute()
 	{
+	    utils::print(__PRETTY_FUNCTION__,"\n");
 	    thrust::counting_iterator<size_t> begin(0);
 	    thrust::counting_iterator<size_t> end = begin + input.data.size();
-	    thrust::for_each(policy_traits.policy, begin, end,functor::harmonic_sum<T>
+	    thrust::for_each(this->get_policy(), begin, end,functor::harmonic_sum<T>
 			     (input_ptr,output_ptr,nharms,input.data.size()));
 	}
     } //transform

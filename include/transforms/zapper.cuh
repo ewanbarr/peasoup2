@@ -7,6 +7,8 @@
 #include "thrust/complex.h"
 #include "misc/system.cuh"
 #include "data_types/frequencyseries.cuh"
+#include "transforms/transform_base.cuh"
+#include "utils/printer.hpp"
 
 namespace peasoup {
     namespace transform {
@@ -22,15 +24,9 @@ namespace peasoup {
 
 	} //namespace functor
 
-	class ZapperBase 
-	{
-	public:
-	    virtual void prepare()=0;
-	    virtual void execute()=0;
-	};
 
 	template <System system, typename T>
-	class Zapper: public ZapperBase
+	class Zapper: public Transform<system>
 	{
 	private:
 	    type::FrequencySeries<system,thrust::complex<T> >& input;

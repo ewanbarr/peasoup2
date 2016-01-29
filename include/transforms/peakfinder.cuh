@@ -6,14 +6,14 @@
 #include <thrust/iterator/counting_iterator.h>
 #include <thrust/iterator/zip_iterator.h>
 #include <thrust/functional.h>
-#include <thrust/execution_policy.h>
 
 #include "data_types/candidates.cuh"
 #include "data_types/frequencyseries.cuh"
 #include "data_types/harmonicseries.cuh"
 #include "misc/constants.h"
 #include "misc/system.cuh"
-#include "misc/policies.cuh"
+#include "transforms/transform_base.cuh"
+#include "utils/printer.hpp"
 
 namespace peasoup {
     namespace transform {
@@ -32,42 +32,9 @@ namespace peasoup {
 	    
 	} // namespace functor
 
-	class PeakFinderBase
-	{
-	public:
-	    virtual void prepare()=0;
-	    virtual void execute()=0;
-	};
-
-	template <System system>
-	class PeakFinderDerivedBase: public PeakFinderBase
-        {
-	public:
-	    
-        };
-
-	template <>
-	class PeakFinderDerivedBase<HOST>: public PeakFinderBase
-        {
-	protected:
-	    thrust::detail::host_t policy;
-	public:
-	    PeakFinderDerivedBase():policy(thrust::host){}
-        };
-
-	template <>
-	class PeakFinderDerivedBase<DEVICE>: public PeakFinderBase
-	{
-	protected:
-	    thrust::detail::execute_with_allocator<policy::cached_allocator, thrust::system::cuda::detail::execute_on_stream_base> policy;
-	    policy::cached_allocator allocator;
-	public: 
-	    PeakFinderDerivedBase():policy(thrust::cuda::par(allocator)){}
-        };
-	
 
 	template <System system, typename T>
-	class PeakFinder: public PeakFinderDerivedBase<system>
+	class PeakFinder: public Transform<system>
 	{
 	private:
 	    typedef thrust::tuple<unsigned,T> peak;
@@ -85,14 +52,14 @@ namespace peasoup {
 	    float minsigma;
 	    std::vector<float> thresholds;
 	    void _execute(pow_iter in, size_t size, int nh, float df, float thresh);
+	    void filter_unique(int num_copied, float df, int nh);
 	    
 	public:
 	    PeakFinder(type::FrequencySeries<system,T>& fundamental,
 		       type::HarmonicSeries<system,T>& harmonics,
 		       std::vector<type::Detection>& dets,
 		       float minsigma)
-		:PeakFinderDerivedBase<system>(),fundamental(fundamental),
-		 harmonics(harmonics),dets(dets),minsigma(minsigma){}
+		:fundamental(fundamental),harmonics(harmonics),dets(dets),minsigma(minsigma){}
 	    
 	    std::vector<float>& get_thresholds();
 	    void prepare();

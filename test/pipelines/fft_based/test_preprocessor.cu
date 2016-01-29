@@ -4,7 +4,7 @@
 #include "gtest/gtest.h"
 
 #include "misc/system.cuh"
-#include "pipelines/preprocessor.cuh"
+#include "pipelines/fft_based/preprocessor.cuh"
 #include "pipelines/args.hpp"
 #include "data_types/timeseries.cuh"
 #include "utils/utils.cuh"

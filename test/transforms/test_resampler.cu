@@ -4,6 +4,7 @@
 #include "misc/constants.h"
 #include "data_types/timeseries.cuh"
 #include "transforms/resampler.cuh"
+#include "utils/utils.cuh"
 
 using namespace peasoup;
 
@@ -27,14 +28,17 @@ void test_case(size_t size, float accel)
     ASSERT_EQ(x.metadata.dm,y.metadata.dm);
     ASSERT_EQ(x.metadata.acc,y.metadata.acc);
     ASSERT_EQ(x.data.size(),y.data.size());
-
-    resamp.resample(accel);
+    resamp.set_accel(accel);
+    resamp.execute();
     
     //check outputs
     type::TimeSeries<HOST,T> in = x;
     type::TimeSeries<HOST,T> out = y;
     double accel_fact = ((accel * in.metadata.tsamp) / (2 * SPEED_OF_LIGHT));
     double dsize = (double) size;
+    
+    utils::check_cuda_error(__PRETTY_FUNCTION__);
+    
     for (size_t ii=0;ii<size;ii++)
 	ASSERT_TRUE(out.data[ii] == in.data[(size_t)(ii + ii*accel_fact*(ii-dsize))]);
 }

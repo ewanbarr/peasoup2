@@ -48,7 +48,15 @@ namespace peasoup {
 		SigprocHeader();
 	    };
 	    
+	    enum sigproc_dtype {
+		FILTERBANK,
+		TIMESERIES,
+		UNKNOWN
+	    };
+
 	    SigprocHeader read_header(IOStream* stream);
+	    
+	    sigproc_dtype get_data_type(IOStream* stream);
 	    
 	    template <typename DataType>
 	    class SigprocReader

@@ -10,6 +10,8 @@
 #include "data_types/timeseries.cuh"
 #include "misc/constants.h"
 #include "misc/system.cuh"
+#include "transforms/transform_base.cuh"
+#include "utils/printer.hpp"
 
 namespace peasoup {
     namespace transform {
@@ -27,29 +29,24 @@ namespace peasoup {
 	    
 	} // namespace functor
 	
-	class TimeDomainResamplerBase
-	{
-	public:
-	    virtual void prepare()=0;
-	    virtual void resample(float accel)=0;
-	};
 	
 	template <System system, typename T>
-        class TimeDomainResampler: public TimeDomainResamplerBase
+        class TimeDomainResampler: public Transform<system>
         {
         private:
 	    typedef thrust::counting_iterator<size_t> countit;
 	    typedef thrust::transform_iterator< functor::acceleration_map, countit > mapit;
 	    type::TimeSeries< system,T >& input;
 	    type::TimeSeries< system,T >& output;
-	    SystemPolicy<system> policy_traits;
+	    float accel;
 
         public:
             TimeDomainResampler(type::TimeSeries< system,T >& input,
                                 type::TimeSeries< system,T >& output)
-                :input(input),output(output){}
+                :input(input),output(output),accel(0){}
 	    void prepare();
-            void resample(float accel);
+	    void set_accel(float accel){this->accel=accel;}
+            void execute();
 	};
     } //transform
 } //peasoup

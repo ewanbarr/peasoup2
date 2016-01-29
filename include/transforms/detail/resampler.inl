@@ -18,13 +18,13 @@ namespace peasoup {
 	}
 
 	template <System system, typename T>
-        void TimeDomainResampler<system,T>::resample(float accel)
+        void TimeDomainResampler<system,T>::execute()
 	{
 	    double accel_fact = ((accel * input.metadata.tsamp) / (2 * SPEED_OF_LIGHT));
 	    double size = input.data.size();
 	    countit begin(0);
 	    mapit iter(begin,functor::acceleration_map(accel_fact,size));
-	    thrust::gather(policy_traits.policy,
+	    thrust::gather(this->get_policy(),
 			   iter,iter+input.data.size(),
 			   input.data.begin(),output.data.begin());
 	}

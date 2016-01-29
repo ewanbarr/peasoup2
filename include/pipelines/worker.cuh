@@ -3,106 +3,57 @@
 
 #include <vector>
 #include <thread>
+#include "cuda.h"
 
 #include "utils/nvtx.hpp"
-#include "pipelines/preprocessor.cuh"
-#include "pipelines/accelsearcher.cuh"
 #include "data_types/timeseries.cuh"
 #include "data_types/candidates.cuh"
 #include "pipelines/args.hpp"
+#include "utils/utils.cuh"
+#include "utils/printer.hpp"
 
 namespace peasoup {
     namespace pipeline {
-
-	template <System system, typename QueueType>
-	class AccelSearchWorker
-	{
-        private:
-	    type::TimeSeries<system,float> input;
-	    QueueType& queue;
-	    std::vector< type::Detection > dets; 
-	    Preprocessor<system>* preproc;
-	    AccelSearch<system>* search;
-
-        public:
-	    AccelSearchWorker(QueueType& queue,
-			      AccelSearchArgs& args)
-		:queue(queue)
-	    {
 	
-		input.data.resize(queue.get_nsamps());
-		input.metadata.tsamp = queue.get_tsamp();
-		preproc = new Preprocessor<system>(input,input,args);
-		search = new AccelSearch<system>(input,dets,args);
-	    }
+	template <typename QueueType>
+	class WorkerBase
+	{
+	protected:
+	    QueueType& queue;
 	    
-	    ~AccelSearchWorker()
-	    {
-		delete preproc;
-		delete search;
-	    }
-	    
-	    void prepare()
-	    {
-		preproc->prepare();
-		search->prepare();
-	    }
+	public:
+	    WorkerBase(QueueType& queue):queue(queue){}	    
+	    virtual void prepare()=0;
+	    virtual void run()=0;
+	    virtual void set_stream(cudaStream_t stream)=0;
+	};
 
-	    void run()
-	    {
-		while (queue.pop(input)){
-		    printf("Processing timeseries with DM=%f\n",input.metadata.dm);
-		    PUSH_NVTX_RANGE(__PRETTY_FUNCTION__,1);
-		    preproc->run();
-		    search->run();
-		    POP_NVTX_RANGE
-		}
-	    }
-        };
 
+	/* There should only be one worker pool per context. A pool cannot
+	   service more than one context as all of its associate buffers and 
+	   transforms are only allocated on the initial context.
+	*/
 	template <typename WorkerType, typename QueueType, typename ArgsType>
 	class WorkerPool
 	{
 	private:
 	    std::vector<std::thread> threads;
 	    std::vector<WorkerType*> workers;
+	    std::vector<cudaStream_t> streams;
 	    QueueType& queue;
 	    ArgsType& args;
 	    unsigned nworkers;
 
 	public:
-	    WorkerPool(QueueType& queue, ArgsType& args, unsigned nworkers)
-		:queue(queue),args(args),nworkers(nworkers)
-	    {
-		for (int ii=0;ii<nworkers;ii++)
-                    workers.push_back(new WorkerType(queue,args));
-	    }
-
-	    ~WorkerPool()
-	    {
-		for (auto worker: workers)
-                    delete worker;
-	    }
-	    
-	    void prepare()
-	    {
-		for (auto worker: workers)
-		    worker->prepare();
-	    }
-	    
-	    void run()
-	    {
-		for (auto worker: workers)
-                    threads.push_back(std::thread(&WorkerType::run, worker));
-	    }
-
-	    void join()
-	    {
-		for (auto& t: threads)
-                    t.join();
-	    }
+	    WorkerPool(QueueType& queue, ArgsType& args, unsigned nworkers);
+	    ~WorkerPool();
+	    void prepare();
+	    void run();
+	    void join();
 	};
     } //worker
 } //peasoup
+
+#include "pipelines/detail/worker.inl"
  
 #endif //PEASOUP_WORKER_CUH

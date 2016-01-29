@@ -23,6 +23,9 @@ include_directories(${FFTW_INCLUDES})
 find_package(Dedisp REQUIRED)
 include_directories(${DEDISP_INCLUDES})
 
+find_package(NVTX REQUIRED)
+include_directories(${NVTX_INCLUDES})
+
 # project version.
 # set(VERSION_MAJOR 0)
 # set(VERSION_MINOR 0)
@@ -42,11 +45,17 @@ include(compiler_settings)
 # === set up cuda from cuda.cmake
 include(cuda)
 
+# === set up default cuda flags
+set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_20,code=sm_20")
+#set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_30,code=sm_30")
+set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_35,code=sm_35")
+#set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_50,code=sm_50")
+
 # === set up project includes
 include_directories(include)
 
 # === process through the peasoup tree:
 add_subdirectory(src)
 add_subdirectory(test)
-
+add_subdirectory(benchmarking)
 

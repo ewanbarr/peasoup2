@@ -2,6 +2,9 @@
 #define PEASOUP_DISPERSIONTIME_CUH
 
 #include <vector>
+#include <iostream>
+#include <string>
+#include <sstream>
 #include "misc/system.cuh"
 #include "data_types/metadata.cuh"
 #include "data_types/container.cuh"
@@ -13,6 +16,19 @@ namespace peasoup {
 	{
 	    float tsamp;
 	    std::vector<float> dms;
+	    
+	    void display()
+	    {
+		std::stringstream dmvals;
+		for (auto i:dms)
+		    dmvals << i << ", ";
+		utils::print("----------------------------\n",
+			     __PRETTY_FUNCTION__,"\n",
+			     "DMs: ",dmvals.str()," pccm^-3\n",
+			     "Sampling time: ",tsamp," s\n",
+			     "Num DMs: ",dms.size(),"\n",
+			     "----------------------------\n");
+	    }
 	};
 	
 	template <System system, typename ValueType>

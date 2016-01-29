@@ -8,6 +8,7 @@
 #include "misc/constants.h"
 #include "data_types/frequencyseries.cuh"
 #include "transforms/normaliser.cuh"
+#include "utils/utils.cuh"
 
 using namespace peasoup;
 
@@ -39,23 +40,23 @@ void test_case(size_t size)
     }
     
     type::FrequencySeries<system,complex> x=input;
-    type::FrequencySeries<system,complex>& y = x;
-    type::FrequencySeries<system,T> z=baseline;
-    
+    type::FrequencySeries<system,complex> y;
+    type::FrequencySeries<system,T> z = baseline;
+
     transform::Normaliser<system,T> normaliser(x,y,z);
     normaliser.prepare();
+    
     ASSERT_EQ(x.data.size(),size);
     ASSERT_EQ(x.data.size(),y.data.size());
     ASSERT_EQ(x.data.size(),z.data.size());
     ASSERT_EQ(x.metadata.binwidth,y.metadata.binwidth);
     ASSERT_EQ(x.metadata.dm,y.metadata.dm);
     ASSERT_EQ(x.metadata.acc,y.metadata.acc);
-	
-    normaliser.normalise();
-    
-    //Create output
+    normaliser.execute();
     type::FrequencySeries<HOST,complex> output = y;
-    
+
+    utils::check_cuda_error(__PRETTY_FUNCTION__);
+
     for (ii=0;ii<size;ii++){
 	complex a = sqrt(LN4/baseline.data[ii])*input.data[ii];
 	complex b = output.data[ii];

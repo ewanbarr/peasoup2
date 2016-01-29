@@ -11,6 +11,7 @@
 
 #include <data_types/timefrequency.cuh>
 #include <data_types/dispersiontime.cuh>
+#include "utils/printer.hpp"
 
 namespace peasoup {
     namespace utils {

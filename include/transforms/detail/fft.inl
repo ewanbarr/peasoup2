@@ -7,12 +7,15 @@ namespace peasoup {
     namespace transform {
 	
 	template <System system> void RealToComplexFFT<system>::prepare(){
+	    utils::print(__PRETTY_FUNCTION__,"\n");
+	    input.metadata.display();
 	    size_t size = input.data.size();
 	    output.data.resize(size/2 + 1);
 	    output.metadata.binwidth = 1.0/(input.metadata.tsamp*size);
 	    output.metadata.dm = input.metadata.dm;
 	    output.metadata.acc = input.metadata.acc;
 	    _prepare();
+	    output.metadata.display();
         }
 
 	template <> 
@@ -27,6 +30,8 @@ namespace peasoup {
 	template <> 
 	inline void RealToComplexFFT<DEVICE>::_prepare(){
             cufftResult error = cufftPlan1d(&plan, input.data.size(), CUFFT_R2C, 1);
+	    if (this->stream!=nullptr)
+		cufftSetStream(plan,this->stream);
 	    utils::check_cufft_error(error);
         }
 
@@ -57,6 +62,8 @@ namespace peasoup {
 	
 	
 	template <System system> void ComplexToRealFFT<system>::prepare(){
+	    utils::print(__PRETTY_FUNCTION__,"\n");
+	    input.metadata.display();
 	    size_t size = input.data.size();
 	    size_t new_size = 2*(size - 1);
 	    output.data.resize(new_size);
@@ -64,6 +71,7 @@ namespace peasoup {
 	    output.metadata.dm = input.metadata.dm;
 	    output.metadata.acc = input.metadata.acc;
 	    _prepare();
+	    output.metadata.display();
         }
 	
 	template <> 
@@ -77,6 +85,8 @@ namespace peasoup {
         template <> 
 	inline void ComplexToRealFFT<DEVICE>::_prepare(){
             cufftResult error = cufftPlan1d(&plan, output.data.size(), CUFFT_C2R, 1);
+	    if (this->stream!=nullptr)
+		cufftSetStream(plan,this->stream);
 	    utils::check_cufft_error(error);
         }
 	
@@ -96,8 +106,8 @@ namespace peasoup {
         }
     
 	
-	template <System system> void ComplexToRealFFT<system>::_normalise(){
-	    using namespace thrust::placeholders;
+	template <System system> 
+	inline void ComplexToRealFFT<system>::_normalise(){
 	    float factor = 1.0/sqrtf(output.data.size()*2);
 	    auto& out = output.data;
 	    thrust::transform(policy_traits.policy, out.begin(),

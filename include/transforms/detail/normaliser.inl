@@ -16,15 +16,18 @@ namespace peasoup {
 	template <System system, typename T>
 	void Normaliser<system,T>::prepare()
 	{
+	    utils::print(__PRETTY_FUNCTION__,"\n");
+            input.metadata.display();
 	    assert (input.data.size() == baseline.data.size());
 	    output.data.resize(input.data.size());
 	    output.metadata = input.metadata;
+	    output.metadata.display();
 	}
 	
 	template <System system, typename T>
-	void Normaliser<system,T>::normalise()
+	void Normaliser<system,T>::execute()
 	{
-	    thrust::transform(policy_traits.policy, input.data.begin(),
+	    thrust::transform(this->get_policy(), input.data.begin(),
 			      input.data.end(), baseline.data.begin(),
 			      output.data.begin(), functor::power_normalise<T>());
 	}

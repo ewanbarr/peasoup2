@@ -8,6 +8,7 @@
 #include "data_types/harmonicseries.cuh"
 #include "transforms/peakfinder.cuh"
 #include "transforms/harmonicsum.cuh"
+#include "utils/utils.cuh"
 
 using namespace peasoup;
 
@@ -36,7 +37,6 @@ void test_case()
     harms.data[4096*1 + 1111] = 24;
     harms.data[4096*2 + 1111] = 25;
     harms.data[4096*3 + 1111] = 26;
-
     
     type::FrequencySeries<system,T> in = x;
     type::HarmonicSeries<system,T> in_harms = harms;
@@ -45,6 +45,8 @@ void test_case()
     transform::PeakFinder<system,T> finder(in,in_harms,dets,3.0);
     finder.prepare();
     finder.execute();
+    
+    utils::check_cuda_error(__PRETTY_FUNCTION__);
     
     std::vector<float>& thresholds = finder.get_thresholds();
     for (float x: thresholds)

@@ -13,6 +13,18 @@ namespace peasoup {
 	    unsigned nchans;
 	    float foff;
 	    float fch1;
+
+	    void display()
+	    {
+		utils::print("----------------------------\n",
+			     __PRETTY_FUNCTION__,"\n",
+			     "Sampling time: ",tsamp," s\n",
+			     "Channel bandwidth: ",foff," MHz\n",
+			     "Top frequency: ",fch1," MHz\n",
+			     "Nchans: ",nchans,"\n",
+			     "----------------------------\n");
+	    }
+	    
 	};
 	
 	

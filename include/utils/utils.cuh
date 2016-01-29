@@ -1,6 +1,7 @@
 #ifndef PEASOUP_UTILS_CUH
 #define PEASOUP_UTILS_CUH
 
+#include <cstddef>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -16,13 +17,16 @@
 
 #include "misc/system.cuh"
 
+
+
+
 namespace peasoup {
     namespace utils {
 
 	inline
-	void check_cuda_error(std::string msg="Unspecified location",cudaStream_t stream=NULL){
+	void check_cuda_error(std::string msg="Unspecified location",cudaStream_t stream=nullptr){
 	    cudaError_t error;
-	    if (stream == NULL)
+	    if (stream == nullptr)
 		error = cudaDeviceSynchronize();
 	    else
 		error = cudaStreamSynchronize(stream);

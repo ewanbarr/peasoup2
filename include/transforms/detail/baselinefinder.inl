@@ -103,7 +103,7 @@ namespace peasoup {
 	    else if( count == 4 ) 
 		out[0] = median4<T>(in[0],in[1],in[2],in[3]);
 	    else {
-		thrust::transform(policy_traits.policy,
+		thrust::transform(this->get_policy(),
 				  thrust::make_counting_iterator<unsigned int>(0),
 				  thrust::make_counting_iterator<unsigned int>(in.size()/5),
 				  out.begin(), functor::median5_functor<T>(ptr));
@@ -114,7 +114,7 @@ namespace peasoup {
 	void BaselineFinder<system,T>::linear_stretch(const vector_type& in, vector_type& out, float step)
 	{
 	    const T* ptr = thrust::raw_pointer_cast(in.data());
-	    thrust::transform(policy_traits.policy,
+	    thrust::transform(this->get_policy(),
 			      thrust::make_counting_iterator<unsigned int>(0),
 			      thrust::make_counting_iterator<unsigned int>(out.size()),
 			      out.begin(), functor::linear_stretch_functor<T>(ptr, in.size(), step));
@@ -123,6 +123,8 @@ namespace peasoup {
 	template <System system, typename T>
 	void BaselineFinder<system,T>::prepare()
 	{
+	    utils::print(__PRETTY_FUNCTION__,"\n");
+            input.metadata.display();
 	    output.data.resize(input.data.size());
 	    intermediate.resize(input.data.size());
 	    output.metadata = input.metadata;
@@ -145,10 +147,11 @@ namespace peasoup {
 			break;
 		power+=1;
 	    }
+	    output.metadata.display();
 	}
 	
 	template <System system, typename T>
-        void BaselineFinder<system,T>::find_baseline()
+        void BaselineFinder<system,T>::execute()
 	{
 	    vector_type* in = &(input.data);
 	    vector_type* out;

@@ -12,6 +12,17 @@ namespace peasoup {
 	    float tsamp;
 	    float dm;
 	    float acc;
+	    
+	    void display()
+	    {
+		utils::print("----------------------------\n",
+			     __PRETTY_FUNCTION__,"\n",
+			     "Sampling time: ",tsamp," s\n",
+			     "DM: ",dm," pccm^-3\n",
+			     "Acceleration: ",acc," m/s/s\n",
+			     "----------------------------\n");
+	    }
+
 	};
 	
 	template <System system, typename ValueType>

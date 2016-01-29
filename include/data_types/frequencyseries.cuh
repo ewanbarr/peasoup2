@@ -3,6 +3,7 @@
 
 #include "data_types/metadata.cuh"
 #include "data_types/container.cuh"
+#include "utils/printer.hpp"
 
 namespace peasoup {
     namespace type {
@@ -12,7 +13,19 @@ namespace peasoup {
 	    float binwidth;
 	    float dm;
 	    float acc;
-	    float nn;
+	    bool nn;
+	    
+	    void display()
+	    {
+		utils::print("----------------------------\n",
+			     __PRETTY_FUNCTION__,"\n",
+			     "Bin width: ",binwidth," Hz\n",
+			     "DM: ",dm," pccm^-3\n",
+			     "Acceleration: ",acc," m/s/s\n",
+			     "Nearest neighbour: ",nn,"\n",
+			     "----------------------------\n");
+	    }
+	    
 	};
 	
 	template <System system, typename ValueType>

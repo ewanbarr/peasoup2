@@ -21,6 +21,9 @@ namespace peasoup {
 	template <System system, typename T>
 	void PeakFinder<system,T>::prepare()
 	{
+	    utils::print(__PRETTY_FUNCTION__,"\n");
+            fundamental.metadata.display();
+	    harmonics.metadata.display();
 	    size_t size = fundamental.data.size();
 	    idxs.resize(size);
 	    powers.resize(size);
@@ -31,10 +34,6 @@ namespace peasoup {
 	    thresholds.push_back(cand_utils::power_for_sigma(minsigma, 1, (float) size, nn));
 	    for (int ii=0;ii<nh;ii++)
 		thresholds.push_back(cand_utils::power_for_sigma(minsigma, 1<<(ii+1), (float) size, nn));
-	    for (auto i: thresholds)
-		{
-		    printf("Threshold: %f\n",i);
-		}
 	}
 	
 	template <System system, typename T>
@@ -46,16 +45,12 @@ namespace peasoup {
 	    counting_iterator<unsigned> index_counter(0);
 	    zip_iterator< peak_tuple_in > input_zip = make_zip_iterator(make_tuple(index_counter,in));
 	    zip_iterator< peak_tuple_out > output_zip = make_zip_iterator(make_tuple(idxs.begin(),powers.begin()));
-	    int num_copied = thrust::copy_if(this->policy, input_zip, input_zip+size, output_zip,
+	    int num_copied = thrust::copy_if(this->get_policy(), input_zip, input_zip+size, output_zip,
 					     functor::greater_than_threshold<float>(thresh)) - output_zip;
 	    thrust::copy(idxs.begin(),idxs.begin()+num_copied,h_idxs.begin());
 	    thrust::copy(powers.begin(),powers.begin()+num_copied,h_powers.begin());
 	    dets.reserve(dets.size()+num_copied);
-	    for (int ii=0; ii<num_copied; ii++){
-		float freq = df * h_idxs[ii];
-		float power = h_powers[ii];
-		dets.push_back(type::Detection(freq,power,nh,fundamental.metadata.acc,fundamental.metadata.dm));
-	    }
+	    filter_unique(num_copied,df,nh);
 	}
 	    
 	template <System system, typename T>
@@ -71,7 +66,32 @@ namespace peasoup {
 		_execute(in+offset,size,ii+1,binwidths[ii],thresholds[ii+1]);
 	    }
 	}
-	
+
+	template <System system, typename T>
+        void PeakFinder<system,T>::filter_unique(int num_copied,float df,int nh)
+	{
+	    if (num_copied<1) return;
+	    int ii = 0;
+	    float cpeak = h_powers[ii];
+	    int cpeakidx = h_idxs[ii];
+	    int lastidx = cpeakidx;
+	    auto& info = fundamental.metadata;
+	    while(ii < num_copied){
+		ii++;
+		if ((h_idxs[ii]-lastidx) > 1){
+		    dets.push_back(type::Detection(df*cpeakidx,cpeak,nh,info.acc,info.dm));
+		    cpeak = h_powers[ii];
+		    cpeakidx = h_idxs[ii];
+		    ii++;
+		} else {
+		    if (h_powers[ii] > cpeak){
+			cpeak = h_powers[ii];
+			cpeakidx = h_idxs[ii];
+		    }
+		}
+	    }
+	    dets.push_back(type::Detection(df*cpeakidx,cpeak,nh,info.acc,info.dm));
+	}
     } //transform
 } //peasoup
 

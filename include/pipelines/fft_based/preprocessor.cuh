@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <utility>
+#include "cuda.h"
 
 #include "thrust/complex.h"
 #include "data_types/timeseries.cuh"
@@ -13,6 +14,7 @@
 #include "transforms/spectrumformer.cuh"
 #include "transforms/zapper.cuh"
 #include "pipelines/args.hpp"
+#include "transforms/pad.cuh"
 
 namespace peasoup {
 
@@ -32,6 +34,7 @@ namespace peasoup {
 	    FrequencySeries<system,float> spectrum;
 	    FrequencySeries<system,float> baseline;
 	    Zapper<system,float>* zapper;
+	    Pad<system,float>* padder;
 	    Normaliser<system,float>* normaliser;
 	    SpectrumFormer<system,float>* spectrum_former;
 	    BaselineFinder<system,float>* baseline_finder;
@@ -44,12 +47,13 @@ namespace peasoup {
 			 TimeSeries<system,float>& output,
 			 AccelSearchArgs& args);
 	    ~Preprocessor();
+	    void set_stream(cudaStream_t stream);
 	    void prepare();
 	    void run();
 	};
     } //pipeline
 } //peasoup
 
-#include "pipelines/detail/preprocessor.inl"
+#include "pipelines/fft_based/detail/preprocessor.inl"
 
 #endif // PEASOUP_PREPROCESSOR_CUH

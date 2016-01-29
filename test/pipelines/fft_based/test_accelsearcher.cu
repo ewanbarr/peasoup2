@@ -5,8 +5,8 @@
 #include "thrust/complex.h"
 
 #include "misc/system.cuh"
-#include "pipelines/accelsearcher.cuh"
-#include "pipelines/preprocessor.cuh"
+#include "pipelines/fft_based/accelsearcher.cuh"
+#include "pipelines/fft_based/preprocessor.cuh"
 #include "data_types/timeseries.cuh"
 #include "data_types/frequencyseries.cuh"
 #include "data_types/candidates.cuh"

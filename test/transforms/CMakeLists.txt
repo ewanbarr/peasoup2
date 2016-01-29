@@ -3,15 +3,16 @@ link_directories(${GTEST_LIBRARY_DIR})
 
 set(
     gtest_transforms_src
-#    test_normaliser.cu
-#    test_baselinefinder.cu
-#    test_resampler.cu
-#    test_harmonicsum.cu
-#    test_spectrumformer.cu
-#    test_fft.cu
-#    test_dedisperser.cu
-#    test_zapper.cu
-     test_peakfinder.cu
+    test_normaliser.cu
+    test_baselinefinder.cu
+    test_resampler.cu
+    test_harmonicsum.cu
+    test_spectrumformer.cu
+    test_fft.cu
+    test_dedisperser.cu
+    test_zapper.cu
+    test_peakfinder.cu
+    test_pad.cu    
     gtest_transforms.cu
     )
 

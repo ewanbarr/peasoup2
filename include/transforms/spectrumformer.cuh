@@ -9,6 +9,8 @@
 #include "misc/system.cuh"
 #include "misc/constants.h"
 #include "data_types/frequencyseries.cuh"
+#include "transforms/transform_base.cuh"
+#include "utils/printer.hpp"
 
 namespace peasoup {
     namespace transform {
@@ -30,30 +32,22 @@ namespace peasoup {
 	    
 	} // namespace functor
 	
-	class SpectrumFormerBase 
-	{
-	public:
-	    virtual void prepare()=0;
-	    virtual void form()=0;
-	    virtual void form_nn()=0;
-	};
-	
 	template <System system, typename T>
-	class SpectrumFormer: public SpectrumFormerBase
+	class SpectrumFormer: public Transform<system>
 	{
 	private:
 	    type::FrequencySeries<system, thrust::complex<T> >& input;
 	    type::FrequencySeries<system,T>& output;
-	    SystemPolicy<system> policy_traits;
+	    bool nn;
 	    
 	public:
 	    SpectrumFormer(type::FrequencySeries<system, thrust::complex<T> >& input, 
-			   type::FrequencySeries<system,T>& output)
-		:input(input),output(output) {}
+			   type::FrequencySeries<system,T>& output,
+			   bool nn=false)
+		:input(input),output(output),nn(nn) {}
 	    
 	    void prepare();
-	    void form_nn();
-	    void form();
+	    void execute();
 	};
     } //transform
 } //peasoup

@@ -5,6 +5,7 @@
 #include "data_types/frequencyseries.cuh"
 #include "data_types/harmonicseries.cuh"
 #include "transforms/harmonicsum.cuh"
+#include "utils/utils.cuh"
 
 using namespace peasoup;
 
@@ -37,10 +38,12 @@ void test_case(size_t size, unsigned nharms)
     ASSERT_EQ(x.metadata.acc,y.metadata.acc);
     ASSERT_EQ(x.data.size()*nharms,y.data.size());
     
-    summer.sum();
+    summer.execute();
     
     //check outputs
     type::HarmonicSeries<HOST,T> out=y;
+    
+    utils::check_cuda_error(__PRETTY_FUNCTION__);
     
     for (ii=0;ii<nharms;ii++){
 	for (jj=0;jj<size;jj++){
@@ -48,7 +51,6 @@ void test_case(size_t size, unsigned nharms)
 	    float fjj = (float) jj;
 	    for (kk=1;kk<(1<<(ii+1))+1;kk++)
 		val += in.data[kk*fjj/(1<<(ii+1))+0.5];
-	    val = val/std::sqrt(1<<(ii+1));
 	    ASSERT_NEAR(out.data[ii*size+jj],val,0.01);
 	}
     }

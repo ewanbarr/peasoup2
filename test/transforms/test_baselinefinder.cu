@@ -3,6 +3,7 @@
 #include "misc/system.cuh"
 #include "data_types/frequencyseries.cuh"
 #include "transforms/baselinefinder.cuh"
+#include "utils/utils.cuh"
 
 using namespace peasoup;
 
@@ -34,9 +35,9 @@ void test_case(size_t size)
 	ASSERT_EQ(ar.size(),size/width);
 	width*=5;
     }
-    baselinefinder.find_baseline();
-
+    baselinefinder.execute();
     type::FrequencySeries<HOST,T> out = baseline;
+    utils::check_cuda_error(__PRETTY_FUNCTION__);
     for (ii=0; ii<out.data.size(); ii++){
 	ASSERT_NEAR(out.data[ii],hinput.data[ii],0.1);
     }

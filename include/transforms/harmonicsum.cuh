@@ -6,6 +6,8 @@
 #include "data_types/frequencyseries.cuh"
 #include "data_types/harmonicseries.cuh"
 #include <thrust/execution_policy.h>
+#include "transforms/transform_base.cuh"
+#include "utils/printer.hpp"
 
 namespace peasoup {
     namespace transform {
@@ -27,20 +29,12 @@ namespace peasoup {
 	} //namespace functor
 	
 	
-	class HarmonicSumBase
-	{
-	public:
-	    virtual void prepare()=0;
-	    virtual void sum()=0;
-	};
-	
 	template <System system, typename T>
-	class HarmonicSum: public HarmonicSumBase
+	class HarmonicSum: public Transform<system>
 	{
 	private:
 	    type::FrequencySeries<system,T>& input;
 	    type::HarmonicSeries<system,T>& output;
-	    SystemPolicy<system> policy_traits;
 	    unsigned nharms;
 	    T* input_ptr;
 	    T* output_ptr;
@@ -51,7 +45,7 @@ namespace peasoup {
 			unsigned nharms)
 		:input(input),output(output),nharms(nharms){}
 	    void prepare();	    
-	    void sum();
+	    void execute();
 	};
 	
     } //transform

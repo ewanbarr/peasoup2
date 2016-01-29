@@ -10,6 +10,8 @@
 #include "data_types/timeseries.cuh"
 #include "misc/constants.h"
 #include "misc/system.cuh"
+#include "transforms/transform_base.cuh"
+#include "utils/printer.hpp"
 
 namespace peasoup {
     namespace transform {
@@ -45,16 +47,8 @@ namespace peasoup {
 	} // namespace functor
 	
 	
-	class BaselineFinderBase
-	{
-	public:
-	    virtual void prepare()=0;
-	    virtual void find_baseline()=0;
-	};
-	
-	
 	template <System system, typename T>
-	class BaselineFinder: public BaselineFinderBase
+	class BaselineFinder: public Transform<system>
 	{
 	private:
 	    typedef typename SystemVector<system,T>::vector_type vector_type;
@@ -63,7 +57,6 @@ namespace peasoup {
 	    vector_type intermediate;
 	    std::vector< vector_type > medians;
 	    std::vector< size_t > boundaries;
-	    SystemPolicy<system> policy_traits;
 	    float accel_max;
 	    void median_scrunch5(const vector_type& in, vector_type& out);
 	    void linear_stretch(const vector_type& in, vector_type& out, float step);
@@ -76,7 +69,7 @@ namespace peasoup {
 	    const std::vector< vector_type >& get_medians() {return medians;};
 	    const std::vector< size_t >& get_boundaries() {return boundaries;};
 	    void prepare();
-	    void find_baseline();
+	    void execute();
 	    
 	};
     } //transform
