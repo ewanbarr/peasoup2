@@ -1,6 +1,7 @@
 #ifndef PEASOUP_HARMONICSUM_CUH
 #define PEASOUP_HARMONICSUM_CUH
 
+#include "cuda.h"
 #include <thrust/for_each.h>
 #include <thrust/iterator/counting_iterator.h>
 #include "data_types/frequencyseries.cuh"
@@ -9,8 +10,14 @@
 #include "transforms/transform_base.cuh"
 #include "utils/printer.hpp"
 
+texture<float, 1, cudaReadModeElementType> harmonic_sum_texture;
+
 namespace peasoup {
     namespace transform {
+	namespace kernel {
+	    static __global__ void harmonic_sum_kernel(float* d_odata, unsigned int size, unsigned int nharms);
+	}
+
 	namespace functor {
 	    
 	    template <typename T>
@@ -53,5 +60,5 @@ namespace peasoup {
 
 #include "transforms/detail/harmonicsum.inl"
 
-#endif // PEASOUP_RESAMPLER_CUH
+#endif // PEASOUP_HARMONICSUM_CUH
 

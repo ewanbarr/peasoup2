@@ -28,12 +28,12 @@ public:
     HarmSumBenchmark(size_t size,int nharms)
 	:size(size),summer(input,output,nharms){}
     
-    void run()
+    void run(int nits)
     {
 	_setup();
-	utils::print("Running harmonic sum test for 100 iterations\n");
+	utils::print("Running harmonic sum test for N iterations\n");
 	PUSH_NVTX_RANGE(__PRETTY_FUNCTION__,1);
-	for (int ii=0;ii<10;ii++)
+	for (int ii=0;ii<nits;ii++)
 	    summer.execute();
 	utils::check_cuda_error(__PRETTY_FUNCTION__);
 	POP_NVTX_RANGE;    
@@ -45,10 +45,10 @@ public:
 int main()
 {
     HarmSumBenchmark<HOST> host(1<<22,4);
-    host.run();
+    host.run(1);
     
     HarmSumBenchmark<DEVICE> device(1<<22,4);
-    device.run();
+    device.run(100);
     
     return 0;
 }
