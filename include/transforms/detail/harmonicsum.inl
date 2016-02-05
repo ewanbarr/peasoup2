@@ -21,26 +21,30 @@ namespace peasoup {
 		
 		if (nharms>1){
                     #pragma unroll
-		    for (ii=1;ii<4;ii+=2)
+		    for (ii=1;ii<4;ii+=2){
 			val += input[__float_as_int(__int_as_float(idx)*ii/4.0f)];
+		    }
 		    output[size+idx] = val;
 		}
 		if (nharms>2){
                     #pragma unroll
-		    for (ii=1;ii<8;ii+=2)
+		    for (ii=1;ii<8;ii+=2){
 			val += input[__float_as_int(__int_as_float(idx)*ii/8.0f)];
+		    }
 		    output[2*size+idx] = val;
 		}
 		if (nharms>3){
                     #pragma unroll
-		    for (ii=1;ii<16;ii+=2)
+		    for (ii=1;ii<16;ii+=2){
 			val += input[__float_as_int(__int_as_float(idx)*ii/16.0f)];
+		    }
 		    output[3*size+idx] = val;
 		}
                 if (nharms>4){
                     #pragma unroll
-                    for (ii=1;ii<32;ii+=2)
+                    for (ii=1;ii<32;ii+=2){
 			val += input[__float_as_int(__int_as_float(idx)*ii/32.0f)];
+		    }
                     output[4*size+idx] = val;
                 }
 	    }
@@ -56,32 +60,32 @@ namespace peasoup {
 		int ii;
 		T val = input[idx];
                 if (nharms>0){
-                    val += input[(int)(idx*0.5f)];
+                    val = input[(int)(idx*0.5f)] + val;
                     output[idx] = val;
                 }
 
                 if (nharms>1){
                     #pragma unroll
                     for (ii=1;ii<4;ii+=2)
-                        val += input[(int)(idx*ii/4.0f)];
+                        val = input[(int)(idx*ii/4.0f)] + val;
                     output[size+idx] = val;
                 }
                 if (nharms>2){
                     #pragma unroll
                     for (ii=1;ii<8;ii+=2)
-                        val += input[(int)(idx*ii/8.0f)];
+                        val = input[(int)(idx*ii/8.0f)] + val;
                     output[2*size+idx] = val;
                 }
                 if (nharms>3){
                     #pragma unroll
                     for (ii=1;ii<16;ii+=2)
-                        val += input[(int)(idx*ii/16.0f)];
+                        val = input[(int)(idx*ii/16.0f)] + val;
                     output[3*size+idx] = val;
                 }
                 if (nharms>4){
                     #pragma unroll
                     for (ii=1;ii<32;ii+=2)
-                        val += input[(int)(idx*ii/32.0f)];
+                        val = input[(int)(idx*ii/32.0f)] + val;
                     output[4*size+idx] = val;
                 }
 	    }
@@ -103,22 +107,32 @@ namespace peasoup {
 	    output.metadata.display();
 	}
 	
+
 	template <System system, typename T>
-        void HarmonicSum<system,T>::execute()
+	void HarmonicSum<system,T>::_default_execute()
 	{
-	    utils::print(__PRETTY_FUNCTION__,"\n");
 	    thrust::counting_iterator<size_t> begin(0);
 	    thrust::counting_iterator<size_t> end = begin + input.data.size();
 	    thrust::for_each(this->get_policy(), begin, end,functor::harmonic_sum<T>
-			     (input_ptr,output_ptr,nharms,input.data.size()));
+                             (input_ptr,output_ptr,nharms,input.data.size()));
+        }
+
+	template <System system, typename T>
+        void HarmonicSum<system,T>::execute()
+	{
+	    _default_execute();
 	}
 
 	template <>
         inline void HarmonicSum<DEVICE,float>::execute()
         {
-	    int nthreads = 512;
-	    int nblocks = input.data.size()/nthreads + 1;
-	    kernel::harmonic_sum_kernel<<<nblocks,nthreads>>>(input_ptr, output_ptr,(unsigned int)input.data.size(),nharms);
+	    if ((input.data.size() >= (1<<24)) || use_default)
+		_default_execute();
+	    else {
+		int nthreads = 1024; // hardwired for k40 occupancy
+		int nblocks = input.data.size()/nthreads + 1;
+		kernel::harmonic_sum_kernel<<<nblocks,nthreads>>>(input_ptr, output_ptr,(unsigned int)input.data.size(),nharms);
+	    }
 	}
 
     } //transform

@@ -30,7 +30,7 @@ namespace peasoup {
 	{
 	    static std::mutex m;
 	    std::lock_guard<std::mutex> _(m);
-	    return print(std::cout, args...);
+	    return print(std::cerr, args...);
 	}
 
     } // utils

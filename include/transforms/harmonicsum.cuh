@@ -45,12 +45,15 @@ namespace peasoup {
 	    unsigned nharms;
 	    T* input_ptr;
 	    T* output_ptr;
-	    
+	    bool use_default;
+
 	public:
 	    HarmonicSum(type::FrequencySeries<system,T>& input, 
 			type::HarmonicSeries<system,T>& output,
-			unsigned nharms)
-		:input(input),output(output),nharms(nharms){}
+			unsigned nharms,
+			bool use_default=false)
+		:input(input),output(output),nharms(nharms),use_default(use_default){}
+	    void _default_execute();
 	    void prepare();	    
 	    void execute();
 	};
