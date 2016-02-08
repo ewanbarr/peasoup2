@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <map>
 
 #include "io/stream.cuh"
 #include "utils/utils.cuh"

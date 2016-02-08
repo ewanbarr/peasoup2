@@ -20,6 +20,7 @@ namespace peasoup {
 	    virtual void prepare()=0;
 	    virtual void execute()=0;
 	    virtual void set_stream(cudaStream_t stream)=0;
+	    virtual void sync()=0;
 	};
 
 	template <System system>
@@ -33,6 +34,7 @@ namespace peasoup {
 	public:
 	    host_t get_policy(){return thrust::host;}
 	    void set_stream(cudaStream_t stream){}
+	    void sync(){}
 	    Transform(){}
 	};
 
@@ -43,9 +45,15 @@ namespace peasoup {
 	    typedef execute_with_allocator<policy::cached_allocator, execute_on_stream_base > policy_type;
 	    cudaStream_t stream;
 	    policy::cached_allocator allocator;
-
+	    
 	public:
 	    void set_stream(cudaStream_t stream){this->stream=stream;}
+	    void sync(){
+		if (stream == nullptr)
+		    cudaDeviceSynchronize();
+                else
+                    cudaStreamSynchronize(stream);
+	    }
 	    policy_type get_policy(){
 		if (stream == nullptr)
 		    return thrust::cuda::par(allocator);

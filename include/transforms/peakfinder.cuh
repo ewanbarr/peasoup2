@@ -50,17 +50,22 @@ namespace peasoup {
 	    typedef thrust::tuple< thrust::counting_iterator<unsigned>, pow_iter > peak_tuple_in;
 	    typedef thrust::tuple< idx_iter, pow_iter > peak_tuple_out;
 	    float minsigma;
+	    float max_freq;
+	    float min_freq;
 	    std::vector<float> thresholds;
-	    void _execute(pow_iter in, size_t size, int nh, float df, float thresh);
+	    int _execute(pow_iter in, size_t size, float thresh);
 	    void filter_unique(int num_copied, float df, int nh);
 	    
 	public:
 	    PeakFinder(type::FrequencySeries<system,T>& fundamental,
 		       type::HarmonicSeries<system,T>& harmonics,
 		       std::vector<type::Detection>& dets,
-		       float minsigma)
-		:fundamental(fundamental),harmonics(harmonics),dets(dets),minsigma(minsigma){}
-	    
+		       float minsigma,
+		       float max_freq = 1100.0,
+		       float min_freq = 0.1)
+		:fundamental(fundamental),harmonics(harmonics),
+		 dets(dets),minsigma(minsigma),
+		 max_freq(max_freq),min_freq(min_freq){}
 	    std::vector<float>& get_thresholds();
 	    void prepare();
 	    void execute();

@@ -56,3 +56,15 @@ set(
 cuda_add_executable(benchmark_peakfind ${benchmark_peakfind_src})
 target_link_libraries(benchmark_peakfind ${NVTX_LIBRARIES})
 target_link_libraries(benchmark_peakfind chi2lib)
+
+
+#--------Dedispersion-----------
+
+set(
+    benchmark_dedispersion_src
+    benchmark_dedispersion.cu
+    )
+
+cuda_add_executable(benchmark_dedispersion ${benchmark_dedispersion_src})
+target_link_libraries(benchmark_dedispersion ${NVTX_LIBRARIES})
+target_link_libraries(benchmark_dedispersion ${DEDISP_LIBRARIES})

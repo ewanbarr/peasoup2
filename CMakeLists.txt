@@ -11,11 +11,11 @@ enable_testing()
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
-find_package(Thrust REQUIRED)
-include_directories(${THRUST_INCLUDE_DIR})
-
 find_package(CUDA REQUIRED)
 include_directories(${CUDA_INCLUDE_DIR})
+
+find_package(Thrust REQUIRED)
+include_directories(${THRUST_INCLUDE_DIR})
 
 find_package(FFTW REQUIRED)
 include_directories(${FFTW_INCLUDES})

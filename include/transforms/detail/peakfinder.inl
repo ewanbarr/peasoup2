@@ -1,3 +1,4 @@
+#include <thread>
 #include "utils/chi2lib.hpp"
 #include "transforms/peakfinder.cuh"
 
@@ -37,46 +38,55 @@ namespace peasoup {
 	}
 	
 	template <System system, typename T>
-        void PeakFinder<system,T>::_execute(pow_iter in, size_t size, int nh, float df, float thresh)
-	{
-	    using thrust::tuple;
-	    using thrust::counting_iterator;
-	    using thrust::zip_iterator;
-	    counting_iterator<unsigned> index_counter(0);
-	    zip_iterator< peak_tuple_in > input_zip = make_zip_iterator(make_tuple(index_counter,in));
-	    zip_iterator< peak_tuple_out > output_zip = make_zip_iterator(make_tuple(idxs.begin(),powers.begin()));
-	    //blocking call
+        int PeakFinder<system,T>::_execute(pow_iter in, size_t size, float thresh)
+        {
+            using thrust::tuple;
+            using thrust::counting_iterator;
+            using thrust::zip_iterator;
+            counting_iterator<unsigned> index_counter(0);
+            zip_iterator< peak_tuple_in > input_zip = make_zip_iterator(make_tuple(index_counter,in));
+            zip_iterator< peak_tuple_out > output_zip = make_zip_iterator(make_tuple(idxs.begin(),powers.begin()));
 	    int num_copied = thrust::copy_if(this->get_policy(), input_zip, input_zip+size, output_zip,
 					     functor::greater_than_threshold<float>(thresh)) - output_zip;
-	    thrust::copy(idxs.begin(),idxs.begin()+num_copied,h_idxs.begin());
-	    thrust::copy(powers.begin(),powers.begin()+num_copied,h_powers.begin());
-	    //if (dets.capacity() < dets.size()+num_copied)
-	    //	dets.reserve(2 * (dets.size()+num_copied));
-	    filter_unique(num_copied,df,nh); //<--this needs to overlap
+	    return num_copied;
 	}
+
 	    
 	template <System system, typename T>
         void PeakFinder<system,T>::execute()
 	{
+	    int num_copied,max_bin,min_bin;
 	    size_t size = fundamental.data.size();
 	    pow_iter in = fundamental.data.begin();
-	    _execute(in,size,0,fundamental.metadata.binwidth,thresholds[0]);
+	    max_bin = max_freq/fundamental.metadata.binwidth;
+            min_bin = min_freq/fundamental.metadata.binwidth;
+	    num_copied = _execute(in+min_bin,max_bin-min_bin,thresholds[0]);
+	    filter_unique(num_copied,fundamental.metadata.binwidth,0);
+	    
 	    in = harmonics.data.begin();
 	    std::vector<float>& binwidths = harmonics.metadata.binwidths;
 	    for (int ii=0; ii<binwidths.size(); ii++){
 		int offset = ii*size;
-		_execute(in+offset,size,ii+1,binwidths[ii],thresholds[ii+1]);
+		max_bin = std::min((size_t)(max_freq/binwidths[ii]),size);
+		min_bin = min_freq/binwidths[ii];
+		num_copied = _execute(in+offset+min_bin,max_bin-min_bin,thresholds[ii+1]);
+		filter_unique(num_copied,binwidths[ii],ii+1);
 	    }
-	    
 	}
-
+	
 	template <System system, typename T>
         void PeakFinder<system,T>::filter_unique(int num_copied,float df,int nh)
 	{
 	    if (num_copied<1) return;
-            if (dets.capacity() < dets.size()+num_copied)
-                dets.reserve(2 * (dets.size()+num_copied));
 	    
+	    thrust::copy(idxs.begin(),idxs.begin()+num_copied,h_idxs.begin());
+	    thrust::copy(powers.begin(),powers.begin()+num_copied,h_powers.begin());
+	    this->sync();
+
+	    size_t new_size = dets.size()+num_copied;
+            if (dets.capacity() < new_size)
+                dets.reserve(2 * new_size);
+
 	    int ii = 0;
 	    float cpeak = h_powers[ii];
 	    int cpeakidx = h_idxs[ii];

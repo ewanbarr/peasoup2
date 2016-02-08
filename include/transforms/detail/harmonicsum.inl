@@ -1,7 +1,5 @@
 #include "transforms/harmonicsum.cuh"
 
-
-
 namespace peasoup {
     namespace transform {
 	namespace kernel {
@@ -12,38 +10,44 @@ namespace peasoup {
 		const unsigned int idx = blockIdx.x*blockDim.x + threadIdx.x;
 		if (idx>=size) return;
 		int ii;
-		float val = input[idx];
-
+		//float val = input[idx];
+		float val = tex1Dfetch(harmonic_sum_texture,idx);
+		
 		if (nharms>0){
-		    val += input[__float_as_int(__int_as_float(idx)*0.5f)];
+		    //val += input[(int)(idx*0.5f)];
+		    val += tex1Dfetch(harmonic_sum_texture,idx*0.5f);
 		    output[idx] = val;
 		}
 		
 		if (nharms>1){
                     #pragma unroll
 		    for (ii=1;ii<4;ii+=2){
-			val += input[__float_as_int(__int_as_float(idx)*ii/4.0f)];
+			//val += input[(int)(idx*ii/4.0f)];
+			val += tex1Dfetch(harmonic_sum_texture,idx*ii/4.0f);
 		    }
 		    output[size+idx] = val;
 		}
 		if (nharms>2){
                     #pragma unroll
 		    for (ii=1;ii<8;ii+=2){
-			val += input[__float_as_int(__int_as_float(idx)*ii/8.0f)];
+			//val += input[(int)(idx*ii/8.0f)];
+			val += tex1Dfetch(harmonic_sum_texture,idx*ii/8.0f);
 		    }
 		    output[2*size+idx] = val;
 		}
 		if (nharms>3){
                     #pragma unroll
 		    for (ii=1;ii<16;ii+=2){
-			val += input[__float_as_int(__int_as_float(idx)*ii/16.0f)];
+			//val += input[(int)(idx*ii/16.0f)];
+			val += tex1Dfetch(harmonic_sum_texture,idx*ii/16.0f);
 		    }
 		    output[3*size+idx] = val;
 		}
                 if (nharms>4){
                     #pragma unroll
                     for (ii=1;ii<32;ii+=2){
-			val += input[__float_as_int(__int_as_float(idx)*ii/32.0f)];
+			//val += input[(int)(idx*ii/32.0f)];
+			val += tex1Dfetch(harmonic_sum_texture,idx*ii/32.0f);
 		    }
                     output[4*size+idx] = val;
                 }
@@ -126,12 +130,15 @@ namespace peasoup {
 	template <>
         inline void HarmonicSum<DEVICE,float>::execute()
         {
-	    if ((input.data.size() >= (1<<24)) || use_default)
+	    if (use_default)
 		_default_execute();
 	    else {
 		int nthreads = 1024; // hardwired for k40 occupancy
 		int nblocks = input.data.size()/nthreads + 1;
-		kernel::harmonic_sum_kernel<<<nblocks,nthreads>>>(input_ptr, output_ptr,(unsigned int)input.data.size(),nharms);
+		cudaBindTexture(0, harmonic_sum_texture, input_ptr, input.data.size());
+		kernel::harmonic_sum_kernel<<<nblocks,nthreads>>>(input_ptr, output_ptr,
+								  (unsigned int)input.data.size(),nharms);
+		cudaUnbindTexture(harmonic_sum_texture);
 	    }
 	}
 
