@@ -37,7 +37,7 @@ all: shared
 shared: $(SO_NAME)
 
 $(SO_NAME): $(SOURCES) $(HEADERS)
-	$(NVCC) -c -Xcompiler "-fPIC -Wall" --use_fast_math  $(OPTIMISE) $(DEBUG) -arch=$(GPU_ARCH) $(INCLUDE) -o $(OBJ_DIR)/dedisp.o $(SRC_DIR)/dedisp.cu
+	$(NVCC) -c -Xcompiler "-fPIC -Wall" --use_fast_math  $(OPTIMISE) $(DEBUG) $(GPU_ARCH) $(INCLUDE) -o $(OBJ_DIR)/dedisp.o $(SRC_DIR)/dedisp.cu
 	$(GCC) -shared -Wl,--version-script=libdedisp.version,-soname,$(LIB_NAME)$(SO_EXT).$(MAJOR) $(LIB) -o $(SO_NAME) $(OBJ_DIR)/dedisp.o
 	ln -s -f $(SO_FILE) $(LIB_DIR)/$(LIB_NAME)$(SO_EXT).$(MAJOR)
 	ln -s -f $(SO_FILE) $(LIB_DIR)/$(LIB_NAME)$(SO_EXT)

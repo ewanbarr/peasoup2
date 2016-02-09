@@ -52,6 +52,9 @@ int main()
     benchmark(size,nbits,ndms,2);
     benchmark(size,nbits,ndms,3);
     benchmark(size,nbits,ndms,4);
+    benchmark(size,nbits,ndms,5);
+    benchmark(size,nbits,ndms,6);
+    benchmark(size,nbits,ndms,7);
     return 0;
 }
 

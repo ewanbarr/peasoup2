@@ -10,8 +10,8 @@ THRUST_DIR = ${CUDA_PATH}/include
 # LIB_ARCH   = lib
 LIB_ARCH   = lib64
 # GPU_ARCH   = sm_13
-GPU_ARCH   = sm_35
-# GPU_ARCH   = sm_30
+# GPU_ARCH   = sm_20
+GPU_ARCH   = -gencode=arch=compute_35,code=sm_35 -gencode=arch=compute_20,code=sm_20 -gencode=arch=compute_52,code=sm_52
 
 GCC        = gcc
 GXX        = g++
