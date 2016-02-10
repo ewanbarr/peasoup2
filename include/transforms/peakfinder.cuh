@@ -15,8 +15,12 @@
 #include "transforms/transform_base.cuh"
 #include "utils/printer.hpp"
 
+
 namespace peasoup {
     namespace transform {
+
+	
+
 	namespace functor {
 	    
 	    template <typename T>
@@ -29,7 +33,7 @@ namespace peasoup {
 		inline __host__ __device__ 
 		bool operator()(thrust::tuple<unsigned,T> t) const;
 	    };
-	    
+
 	} // namespace functor
 
 
