@@ -11,7 +11,6 @@ set(
     test_fft.cu
     test_dedisperser.cu
     test_zapper.cu
-    test_peakfinder.cu
     test_pad.cu    
     gtest_transforms.cu
     )
@@ -23,3 +22,14 @@ target_link_libraries(gtest_transforms ${FFTW_LIBRARIES})
 target_link_libraries(gtest_transforms ${CUDA_cufft_LIBRARY})
 target_link_libraries(gtest_transforms ${DEDISP_LIBRARIES})
 add_test(gtest_transforms gtest_transforms)
+
+#-----------test peakfinder------------#
+
+set(
+    gtest_transform_peakfinder_src
+    test_peakfinder.cu
+    )
+
+cuda_add_executable(gtest_transform_peakfinder ${gtest_transform_peakfinder_src})
+target_link_libraries(gtest_transform_peakfinder ${GTEST_LIBRARIES})
+target_link_libraries(gtest_transform_peakfinder chi2lib)

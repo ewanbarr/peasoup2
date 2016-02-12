@@ -38,12 +38,12 @@ namespace peasoup {
 	}
 	
 	template <System system, typename T>
-        int PeakFinder<system,T>::_execute(pow_iter in, size_t size, float thresh)
+        int PeakFinder<system,T>::_execute(pow_iter in, size_t size, float thresh, int offset)
         {
             using thrust::tuple;
             using thrust::counting_iterator;
             using thrust::zip_iterator;
-            counting_iterator<unsigned> index_counter(0);
+            counting_iterator<unsigned> index_counter(offset);
             zip_iterator< peak_tuple_in > input_zip = make_zip_iterator(make_tuple(index_counter,in));
             zip_iterator< peak_tuple_out > output_zip = make_zip_iterator(make_tuple(idxs.begin(),powers.begin()));
 	    int num_copied = thrust::copy_if(this->get_policy(), input_zip, input_zip+size, output_zip,
@@ -60,7 +60,7 @@ namespace peasoup {
 	    pow_iter in = fundamental.data.begin();
 	    max_bin = max_freq/fundamental.metadata.binwidth;
             min_bin = min_freq/fundamental.metadata.binwidth;
-	    num_copied = _execute(in+min_bin,max_bin-min_bin,thresholds[0]);
+	    num_copied = _execute(in+min_bin,max_bin-min_bin,thresholds[0],min_bin);
 	    filter_unique(num_copied,fundamental.metadata.binwidth,0);
 	    
 	    in = harmonics.data.begin();
@@ -69,7 +69,7 @@ namespace peasoup {
 		int offset = ii*size;
 		max_bin = std::min((size_t)(max_freq/binwidths[ii]),size);
 		min_bin = min_freq/binwidths[ii];
-		num_copied = _execute(in+offset+min_bin,max_bin-min_bin,thresholds[ii+1]);
+		num_copied = _execute(in+offset+min_bin,max_bin-min_bin,thresholds[ii+1],min_bin);
 		filter_unique(num_copied,binwidths[ii],ii+1);
 	    }
 	}
@@ -90,11 +90,10 @@ namespace peasoup {
 	    int ii = 0;
 	    float cpeak = h_powers[ii];
 	    int cpeakidx = h_idxs[ii];
-	    int lastidx = cpeakidx;
+	    ii++;
 	    auto& info = fundamental.metadata;
 	    while(ii < num_copied){
-		ii++;
-		if ((h_idxs[ii]-lastidx) > 1){
+		if ((h_idxs[ii]-h_idxs[ii-1]) > 1){
 		    dets.push_back(type::Detection(df*cpeakidx,cpeak,nh,info.acc,info.dm));
 		    cpeak = h_powers[ii];
 		    cpeakidx = h_idxs[ii];
@@ -105,6 +104,7 @@ namespace peasoup {
 			cpeakidx = h_idxs[ii];
 		    }
 		}
+		ii++;
 	    }
 	    dets.push_back(type::Detection(df*cpeakidx,cpeak,nh,info.acc,info.dm));
 	}

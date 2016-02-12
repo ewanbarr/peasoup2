@@ -2,6 +2,9 @@
 
 #include "gtest/gtest.h"
 
+#include <thrust/random.h>
+#include <thrust/random/normal_distribution.h>
+
 #include "misc/system.cuh"
 #include "data_types/candidates.cuh"
 #include "data_types/frequencyseries.cuh"
@@ -15,48 +18,49 @@ using namespace peasoup;
 template <System system, typename T>
 void test_case()
 {
+    int ii;
     //Build input
-    type::FrequencySeries<HOST,T> x;
-    x.metadata.binwidth = 1/600.0;
-    x.metadata.dm = 235.3;
-    x.metadata.acc = 0.33;
-    x.data.resize(4096);
-    for (int ii=0;ii<4096;ii++)
-	x.data[ii] = 0;
-    
-    x.data[1111] = 5.0;
-    x.data[1334] = 20.0;
-    x.data[11] = 30.0;
-    x.data[4095] = 55.0;
+    type::FrequencySeries<HOST,T> powers;
+    powers.metadata.binwidth = 1/600.0;
+    powers.metadata.dm = 235.3;
+    powers.metadata.acc = 0.33;
+    powers.data.resize(1<<22,0);
+    for (ii = 1; ii< 17; ii++)
+	powers.data[16*16*16*ii] = 1000.0;
 
     type::HarmonicSeries<HOST,T> harms;
-    transform::HarmonicSum<HOST,T> sum(x,harms,4);
+    transform::HarmonicSum<HOST,T> sum(powers,harms,4);
     sum.prepare();
-    
-    harms.data[4096*0 + 1111] = 23;
-    harms.data[4096*1 + 1111] = 24;
-    harms.data[4096*2 + 1111] = 25;
-    harms.data[4096*3 + 1111] = 26;
-    
-    type::FrequencySeries<system,T> in = x;
+    sum.execute();
+    type::FrequencySeries<system,T> in = powers;
     type::HarmonicSeries<system,T> in_harms = harms;
     std::vector<type::Detection> dets;
-    
-    transform::PeakFinder<system,T> finder(in,in_harms,dets,3.0);
+    transform::PeakFinder<system,T> finder(in,in_harms,dets,10.0);
     finder.prepare();
     finder.execute();
-    
     utils::check_cuda_error(__PRETTY_FUNCTION__);
-    
     std::vector<float>& thresholds = finder.get_thresholds();
-    for (float x: thresholds)
-	printf("Thresh:    %f\n",x);
 
+    float max_power,max_freq;
+    max_power = max_freq = 0.0;
     for (auto& i: dets){
-	printf("%f    %f\n",i.freq/x.metadata.binwidth,i.power);
+	if (i.power > max_power){
+	    max_power = i.power;
+	    max_freq = i.freq;
+	}
     }
-    
+    ASSERT_NEAR(max_freq,16*16*16*powers.metadata.binwidth,0.0001);
+    ASSERT_NEAR(max_power,16*1000.0,0.0001);
 }
 
 TEST(PeakFinderTest, HostFinder)
 { test_case<HOST,float>(); }
+
+TEST(PeakFinderTest, DeviceFinder)
+{ test_case<DEVICE,float>(); }
+
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
+

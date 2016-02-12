@@ -44,12 +44,22 @@ int main(){
     
     peasoup::utils::Timer clock;
     cub::ArgIndexInputIterator<int *> input_itr(d_in);
-    cub::DeviceSelect::If(d_temp_storage, temp_storage_bytes, input_itr, d_out, d_num_selected, num_items, GreaterThan(2));
+    cub::DeviceSelect::If(d_temp_storage, temp_storage_bytes, input_itr, d_out, d_num_selected, num_items, GreaterThan(0));
     cudaMalloc(&d_temp_storage, temp_storage_bytes);
     clock.start();
     for (int ii=0;ii<100;ii++)
-	cub::DeviceSelect::If(d_temp_storage, temp_storage_bytes, input_itr, d_out, d_num_selected, num_items, GreaterThan(2));
+	cub::DeviceSelect::If(d_temp_storage, temp_storage_bytes, input_itr+3, d_out, d_num_selected, num_items-3, GreaterThan(2));
     clock.stop();
     printf("100 iterations takes %f ms (%f per iteration)\n",clock.elapsed(),clock.elapsed()/100);
+
+    thrust::host_vector<Tuple> h_out = d_out_vec;
+    cudaDeviceSynchronize();
+    for (int ii=0;ii<10;ii++)
+	{
+	    printf("key: %d, value: %d\n",h_out[ii].key,h_out[ii].value);
+	    
+	}
+    
+
     return 0;
 }

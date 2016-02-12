@@ -57,7 +57,7 @@ namespace peasoup {
 	    float max_freq;
 	    float min_freq;
 	    std::vector<float> thresholds;
-	    int _execute(pow_iter in, size_t size, float thresh);
+	    int _execute(pow_iter in, size_t size, float thresh, int offset);
 	    void filter_unique(int num_copied, float df, int nh);
 	    
 	public:
