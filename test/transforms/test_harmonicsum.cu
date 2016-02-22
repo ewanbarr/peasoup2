@@ -50,7 +50,7 @@ void test_case(size_t size, unsigned nharms)
 	    T val = 0;
 	    float fjj = (float) jj;
 	    for (kk=1;kk<(1<<(ii+1))+1;kk++)
-		val += in.data[kk*fjj/(1<<(ii+1))+0.5];
+		val += in.data[(int)(kk*fjj/(1<<(ii+1))+0.5f)];
 	    ASSERT_NEAR(out.data[ii*size+jj],val,0.05);
 	}
     }

@@ -29,6 +29,9 @@ namespace peasoup {
 			     "Num DMs: ",dms.size(),"\n",
 			     "----------------------------\n");
 	    }
+	    
+	    DispersionTimeMetaData()
+		:tsamp(0.0){}
 	};
 	
 	template <System system, typename ValueType>

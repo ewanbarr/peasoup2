@@ -181,7 +181,7 @@ namespace peasoup {
 	    //chi2 = 2.0 * power; <--- EWAN: CHANGED FOR PEASOUP
 	    chi2 = power;
 	    if (nn) 
-		dof = (2.0+SQRT2) * numsum;
+		dof = (2.0+1.0/SQRT2) * numsum;
 	    else  
 		dof = 2.0 * numsum;
 	    logp = chi2_logp(chi2, dof);
@@ -223,7 +223,7 @@ namespace peasoup {
 
 	    which = 2;
 	    if (nn)
-                df = (2.0+SQRT2) * numsum;
+                df = (2.0+1.0/SQRT2) * numsum;
             else
                 df = 2.0 * numsum;
 	    status = 0;

@@ -31,7 +31,11 @@ namespace peasoup {
                              "Nearest neighbour: ",nn,"\n",
 			     "----------------------------\n");
             }
-
+	    
+	    HarmonicSeriesMetaData()
+		:dm(0.0),
+		 acc(0.0),
+		 nn(false){}
 	};
 	
 	template <System system, typename ValueType>

@@ -48,13 +48,11 @@ int main()
     size_t size = 1<<23;
     uint8_t nbits = 2;
     int ndms = 1000;
-    benchmark(size,nbits,ndms,1);
-    benchmark(size,nbits,ndms,2);
-    benchmark(size,nbits,ndms,3);
-    benchmark(size,nbits,ndms,4);
-    benchmark(size,nbits,ndms,5);
-    benchmark(size,nbits,ndms,6);
-    benchmark(size,nbits,ndms,7);
+    
+    int nDevices;
+    cudaGetDeviceCount(&nDevices);
+    for (int ii=1;ii<=nDevices;ii++)
+	benchmark(size,nbits,ndms,ii);
     return 0;
 }
 

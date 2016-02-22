@@ -13,11 +13,11 @@
 
 namespace peasoup {
     namespace pipeline {
-
+	
 	class TimeFrequencyFFTPipeline
 	{
 	private:
-	    typedef pipeline::AccelSearchArgs args_type;
+	    typedef AccelSearchArgs args_type;
 	    typedef typename type::DispersionTime<HOST,uint8_t> dmtrial_type;
 	    typedef typename type::TimeFrequencyBits<HOST> tf_type;
 	    typedef typename pipeline::DMTrialQueue<dmtrial_type> queue_type;
@@ -30,10 +30,10 @@ namespace peasoup {
 	    queue_type queue;
 	    std::vector<pool_type*> pools;
 	    int ngpus;
-	    pipeline::AccelSearchArgs args;
+	    TimeFrequencyFFTPipelineArgs args;
 
 	public:
-	    TimeFrequencyFFTPipeline(tf_type& input, Options& opts);
+	    TimeFrequencyFFTPipeline(tf_type& input, TimeFrequencyFFTPipelineArgs& args);
 	    ~TimeFrequencyFFTPipeline();
 	    void prepare();
 	    void run();

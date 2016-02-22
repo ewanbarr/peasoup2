@@ -23,10 +23,10 @@ namespace peasoup {
 	    std::vector< type::Detection > dets; 
 	    Preprocessor<system>* preproc;
 	    AccelSearch<system>* search;
-	    
+	    AccelSearchArgs& args;
 	    
         public:
-	    AccelSearchWorker(QueueType& queue, AccelSearchArgs args);
+	    AccelSearchWorker(QueueType& queue, AccelSearchArgs& args);
 	    ~AccelSearchWorker();
 	    void prepare();
 	    void set_stream(cudaStream_t stream);

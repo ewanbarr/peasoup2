@@ -4,7 +4,6 @@ link_directories(${GTEST_LIBRARY_DIR})
 set(
     gtest_pipelines_src
     test_dmtrialqueue.cu
-    test_worker.cu
     gtest_pipelines.cu
     )
 

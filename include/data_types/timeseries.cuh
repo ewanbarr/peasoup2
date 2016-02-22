@@ -22,7 +22,8 @@ namespace peasoup {
 			     "Acceleration: ",acc," m/s/s\n",
 			     "----------------------------\n");
 	    }
-
+	    
+	    TimeSeriesMetaData():tsamp(0.0),acc(0.0),dm(0.0){}
 	};
 	
 	template <System system, typename ValueType>

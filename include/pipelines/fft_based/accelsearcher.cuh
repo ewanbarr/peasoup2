@@ -12,7 +12,9 @@
 #include "transforms/spectrumformer.cuh"
 #include "transforms/harmonicsum.cuh"
 #include "transforms/peakfinder.cuh"
+#include "transforms/distillers.cuh"
 #include "pipelines/args.hpp"
+#include "pipelines/accel_plan.hpp"
 #include "utils/printer.hpp"
 
 namespace peasoup {
@@ -33,19 +35,24 @@ namespace peasoup {
 	{
 	private:
 	    typedef thrust::complex<float> complex;
-
+	    
 	public:
 	    TimeSeries<system,float>& input;
 	    TimeSeries<system,float> timeseries_r;
 	    FrequencySeries<system,complex> fourier;
 	    FrequencySeries<system,float> spectrum;
 	    HarmonicSeries<system,float> harmonics;
+	    std::vector<Detection> acc_dets;
+	    std::vector<Detection> harm_dets;
 	    std::vector<Detection>& dets;
+	    std::vector<float> acc_list;
 	    TimeDomainResampler<system,float>* resampler;
 	    RealToComplexFFT<system>* r2cfft;
 	    SpectrumFormer<system,float>* spectrum_former;
 	    HarmonicSum<system,float>* harmsum;
 	    PeakFinder<system,float>* peak_finder; 
+	    HarmonicDistiller* harmonic_still;
+	    AccelerationDistiller* acceleration_still;
 	    AccelSearchArgs& args;
 	    
 	    AccelSearch(TimeSeries<system,float>& input,

@@ -30,13 +30,13 @@ namespace peasoup {
 	{
 	private:
 	    type::FrequencySeries<system,thrust::complex<T> >& input;
-	    std::vector<std::pair<float,float> >& birdies;
+	    std::vector<std::pair<float,float> > birdies;
 	    typename SystemVector<system,unsigned>::vector_type bins;
 	    SystemPolicy<system> policy_traits;
 	    
 	public:
 	    Zapper(type::FrequencySeries<system,thrust::complex<T> >& input,
-		   std::vector<std::pair<float,float> >& birdies)
+		   std::vector<std::pair<float,float> > birdies)
 		:input(input),birdies(birdies) {}
 	    void prepare();	    
 	    void execute();

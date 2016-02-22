@@ -5,10 +5,12 @@
 #include "pipelines/args.hpp"
 #include "data_types/timefrequency.cuh"
 #include "utils/utils.cuh"
+#include "pipelines/cmdline.cuh"
 
 using namespace peasoup;
 
-typedef std::pair<float,float> bird;
+int my_argc;
+char** my_argv;
 
 void fill_input(type::TimeFrequencyBits<HOST>& input, size_t nsamps)
 {
@@ -24,20 +26,23 @@ void fill_input(type::TimeFrequencyBits<HOST>& input, size_t nsamps)
 void test_case(size_t size)
 {
     pipeline::Options opts;
-    opts.minsigma = 6.0;
-    opts.nharm = 4;
-    opts.ngpus = 1;
-    opts.nthreads = 3;
-    opts.nfft = size;
+    cmdline::read_cmdline_options(opts,my_argc,my_argv);
+    if (opts.tf_fft_args.accelsearch.nfft == 0)
+	opts.tf_fft_args.accelsearch.nfft = size;
+    //opts.tf_fft_args.accelsearch.user_acc_list.push_back(0.0);
     type::TimeFrequencyBits<HOST> input(2);
     fill_input(input,size);
-
-    pipeline::TimeFrequencyFFTPipeline pipeline(input,opts);
+    pipeline::TimeFrequencyFFTPipeline pipeline(input,opts.tf_fft_args);
     pipeline.prepare();
     pipeline.run();
 }
 
 TEST(TimeFrequencyFFTPipelineTest, TestExecute)
-{ test_case(1<<23); }
+{ test_case(1<<18); }
 
-
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    my_argc = argc;
+    my_argv = argv;
+    return RUN_ALL_TESTS();
+}

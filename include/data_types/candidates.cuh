@@ -13,11 +13,15 @@ namespace peasoup {
 	    int nh;
 	    float acc;
 	    float dm;
+	    float sigma;
+	    std::vector<Detection> associated;
 	    Detection(float freq, float power, int nh,
-		      float acc, float dm)
-		:freq(freq),power(power),nh(nh),acc(acc),dm(dm){}
+		      float acc, float dm, float sigma=0.0)
+		:freq(freq),power(power),nh(nh),
+		 acc(acc),dm(dm),sigma(sigma){}
 	};
-	
+
+
     } // namespace type
 } // namespace peasoup
 

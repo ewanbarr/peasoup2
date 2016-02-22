@@ -25,6 +25,12 @@ namespace peasoup {
 			     "----------------------------\n");
 	    }
 	    
+	    TimeFrequencyMetaData()
+		:tsamp(0.0),
+		 nchans(0),
+		 foff(0.0),
+		 fch1(0.0){}
+	    
 	};
 	
 	

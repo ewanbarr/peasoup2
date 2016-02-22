@@ -15,8 +15,12 @@ namespace peasoup {
 					   AccelSearchArgs& args)
 	    :input(input),output(output),args(args)
 	{
-	    float max_accel = *std::max_element(args.acc_list.begin(),args.acc_list.end());
-	    if (max_accel<100) max_accel = 5000.0;
+	    float max_accel = args.acc_end;
+	    // TODO: work out what is the correct value to have here when max_accel < 100;
+	    if (args.acc_end<100) max_accel = 5000.0;
+	    
+	    // This would benefit from a Downsampler class to speed up the higher dispersions
+	    // Need to consider data reuse and multiple prepare calls for this.
 	    padder = new Pad<system,float>(input,input.data.size(),args.nfft);
 	    r2cfft = new RealToComplexFFT<system>(input,fourier);
 	    spectrum_former = new SpectrumFormer<system,float>(fourier,spectrum,false);

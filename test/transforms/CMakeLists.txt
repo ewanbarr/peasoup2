@@ -33,3 +33,13 @@ set(
 cuda_add_executable(gtest_transform_peakfinder ${gtest_transform_peakfinder_src})
 target_link_libraries(gtest_transform_peakfinder ${GTEST_LIBRARIES})
 target_link_libraries(gtest_transform_peakfinder chi2lib)
+
+#---------test peakfinder/distiller--------#
+set(
+    gtest_transform_distillers_src
+    test_distillers.cu
+    )
+
+cuda_add_executable(gtest_transform_distillers ${gtest_transform_distillers_src})
+target_link_libraries(gtest_transform_distillers ${GTEST_LIBRARIES})
+target_link_libraries(gtest_transform_distillers chi2lib)

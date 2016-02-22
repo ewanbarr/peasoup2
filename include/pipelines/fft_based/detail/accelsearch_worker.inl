@@ -4,8 +4,8 @@ namespace peasoup {
     namespace pipeline {
 	
 	template <System system, typename QueueType>
-	AccelSearchWorker<system,QueueType>::AccelSearchWorker(QueueType& queue,AccelSearchArgs args)
-	    :WorkerBase<QueueType>(queue)
+	AccelSearchWorker<system,QueueType>::AccelSearchWorker(QueueType& queue, AccelSearchArgs& args)
+	    :WorkerBase<QueueType>(queue),args(args)
 	{
 	    input.data.resize(this->queue.get_nsamps());
 	    input.metadata.tsamp = this->queue.get_tsamp();

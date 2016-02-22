@@ -32,9 +32,11 @@ namespace peasoup {
 	    h_powers.resize(size);
 	    int nh = harmonics.metadata.binwidths.size();
 	    bool nn = fundamental.metadata.nn;
-	    thresholds.push_back(cand_utils::power_for_sigma(minsigma, 1, (float) size, nn));
+	    thresholds.push_back(cand_utils::power_for_sigma(minsigma, 1, (float) 1.0, nn));
 	    for (int ii=0;ii<nh;ii++)
-		thresholds.push_back(cand_utils::power_for_sigma(minsigma, 1<<(ii+1), (float) size, nn));
+		thresholds.push_back(cand_utils::power_for_sigma(minsigma, 1<<(ii+1), (float) 1.0,nn));
+	    for (auto thresh:thresholds)
+		printf("Thresh: %f\n",thresh);
 	}
 	
 	template <System system, typename T>
@@ -107,6 +109,9 @@ namespace peasoup {
 		ii++;
 	    }
 	    dets.push_back(type::Detection(df*cpeakidx,cpeak,nh,info.acc,info.dm));
+	    double dsize = (double) fundamental.data.size();
+	    for (auto& det: dets)
+		det.sigma = cand_utils::candidate_sigma(det.power,1<<det.nh,1,fundamental.metadata.nn);
 	}
     } //transform
 } //peasoup
