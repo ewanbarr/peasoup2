@@ -22,9 +22,11 @@ namespace peasoup {
 	template <System system, typename T>
 	void Zapper<system,T>::prepare()
 	{
-	    utils::print(__PRETTY_FUNCTION__,"\n");
-	    input.metadata.display();
-	    utils::print("Nbirds: ",birdies.size(),"\n");
+	    LOG(logging::get_logger("transform.zapper"),logging::DEBUG,
+                "Preparing Zapper\n",
+                "Input metadata:\n",input.metadata.display(),
+                "Input size: ",input.data.size()," samples\n",
+		"Nbirds: ",birdies.size());
 	    unsigned lower,upper;
 	    float df = input.metadata.binwidth;
 	    unsigned size = input.data.size();
@@ -38,15 +40,15 @@ namespace peasoup {
 		for (int ii=lower;ii<upper;ii++)
 		    bins.push_back(ii);
 	    }
-	    utils::print("done\n");
 	}
 	
 	template <System system, typename T>
 	void Zapper<system,T>::execute()
 	{
-	    if (bins.size()==0) 
+	    if (bins.size()==0)
 		return;
 	    else {
+		LOG(logging::get_logger("transform.zapper"),logging::DEBUG,"Executing birdie zapper");
 		thrust::complex<T>* ar = thrust::raw_pointer_cast(input.data.data());
 		thrust::for_each(this->get_policy(),bins.begin(),bins.end(),
 				 functor::zapper_functor<T>(ar));

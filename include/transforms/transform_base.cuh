@@ -7,6 +7,7 @@
 #include "misc/system.cuh"
 #include "misc/policies.cuh"
 #include "utils/utils.cuh"
+#include "utils/logging.hpp"
 
 namespace peasoup {
     namespace transform {

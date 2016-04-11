@@ -16,20 +16,31 @@ namespace peasoup {
 	template <System system, typename T>
 	void Normaliser<system,T>::prepare()
 	{
-	    utils::print(__PRETTY_FUNCTION__,"\n");
-            input.metadata.display();
+	    LOG(logging::get_logger("transform.normaliser"),logging::DEBUG,
+		"Preparing normaliser transform\n",
+		"Input metadata:\n",input.metadata.display(),
+		"Input size: ",input.data.size()," samples\n",
+		"Baseline metadata:\n",baseline.metadata.display(),
+		"Baseline size: ",baseline.data.size()," samples");
+	    
 	    assert (input.data.size() == baseline.data.size());
 	    output.data.resize(input.data.size());
 	    output.metadata = input.metadata;
-	    output.metadata.display();
+	    
+	    LOG(logging::get_logger("transform.normaliser"),logging::DEBUG,
+                "Prepared normaliser transform\n",
+                "Output metadata:\n",output.metadata.display(),
+                "Output size: ",output.data.size()," samples");	    
 	}
 	
 	template <System system, typename T>
 	void Normaliser<system,T>::execute()
 	{
+	    LOG(logging::get_logger("transform.normaliser"),logging::DEBUG,
+                "Normalising data");
 	    thrust::transform(this->get_policy(), input.data.begin(),
 			      input.data.end(), baseline.data.begin(),
 			      output.data.begin(), functor::power_normalise<T>());
 	}
-    }
-}
+    } //transform
+} // peasoup

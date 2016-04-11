@@ -6,7 +6,7 @@
 
 namespace peasoup {
     namespace utils {
-    
+
 	inline std::ostream& print_one(std::ostream& os)
 	{
 	    return os;

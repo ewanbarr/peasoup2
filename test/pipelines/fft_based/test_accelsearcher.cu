@@ -18,6 +18,7 @@
 #include "transforms/distillers.cuh"
 #include "tvgs/timeseries_generator.cuh"
 #include "utils/utils.cuh"
+#include "utils/logging.hpp"
 
 using namespace peasoup;
 
@@ -75,6 +76,9 @@ namespace test_args {
 					   "snr cycle of injected signal",
 					   false, 15.0, "float",cmd);
 	    
+	    TCLAP::ValueArg<std::string> arg_loglevel("", "loglevel",
+						      "The default log level [CRITICAL,ERROR,WARNING,INFO,DEBUG] (def=WARNING)",
+						      false, "WARNING", "string",cmd);
 	    
 	    TCLAP::SwitchArg arg_host("", "host", "run on host", cmd);
 
@@ -89,6 +93,8 @@ namespace test_args {
 	    args.snr               = arg_snr.getValue();
 	    args.host              = arg_host.getValue();
 	    
+	    logging::set_default_log_level_from_string(arg_loglevel.getValue());
+
 	}catch (TCLAP::ArgException &e) {
 	    std::cerr << "Error: " << e.error() << " for arg " << e.argId()
 		      << std::endl;

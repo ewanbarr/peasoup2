@@ -11,15 +11,33 @@ namespace peasoup {
 	} // namespace functor
 	
 	template <System system, typename T>
+        inline void TimeDomainResampler<system,T>::set_accel(float accel)
+	{
+	    LOG(logging::get_logger("transform.resampler"),logging::DEBUG,
+		"Setting accleration to ",accel," m/s/s");
+	    this->accel=accel;
+	}
+	
+	template <System system, typename T>
 	void TimeDomainResampler<system,T>::prepare()
 	{
+	    LOG(logging::get_logger("transform.resampler"),logging::DEBUG,
+                "Preparing resampler transform\n",
+                "Input metadata:\n",input.metadata.display(),
+                "Input size: ",input.data.size()," samples");
 	    output.data.resize(input.data.size());
 	    output.metadata = input.metadata;
+	    LOG(logging::get_logger("transform.resampler"),logging::DEBUG,
+                "Prepared resampler transform\n",
+                "Output metadata:\n",output.metadata.display(),
+                "Output size: ",output.data.size()," samples");
 	}
 
 	template <System system, typename T>
         void TimeDomainResampler<system,T>::execute()
 	{
+	    LOG(logging::get_logger("transform.resampler"),logging::DEBUG,
+		"Resampling data to acceleration of ",accel," m/s/s");
 	    double accel_fact = ((accel * input.metadata.tsamp) / (2 * SPEED_OF_LIGHT));
 	    double size = input.data.size();
 	    countit begin(0);

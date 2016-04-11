@@ -288,11 +288,11 @@ void dedisperse_kernel(const dedisp_word*  d_in,
 				break;
 			case 32:
                 #pragma unroll
-				for( dedisp_size s=0; s<SAMPS_PER_THREAD; ++s ) {
-					if( samp_idx*SAMPS_PER_THREAD + s < nsamps )
-						set_out_val<float, IN_NBITS>(d_out, out_idx + s,
-						                             sum[s], nchans);
-				}
+			    for( dedisp_size s=0; s<SAMPS_PER_THREAD; ++s ) {
+				if( samp_idx*SAMPS_PER_THREAD + s < nsamps )
+				    set_out_val<float, IN_NBITS>(d_out, out_idx + s,
+								 sum[s], nchans);
+			    }
 				break;
 			default:
 				// Error
@@ -402,26 +402,26 @@ bool dedisperse(const dedisp_word*  d_in,
 	
 	// Execute the kernel
 #define DEDISP_CALL_KERNEL(NBITS, USE_TEXTURE_MEM)						\
-	dedisperse_kernel<NBITS,DEDISP_SAMPS_PER_THREAD,BLOCK_DIM_X,        \
-		              BLOCK_DIM_Y,USE_TEXTURE_MEM>                      \
-		<<<grid, block, 0, stream>>>(d_in,								\
-									 nsamps,							\
-									 nsamps_reduced,					\
-									 nsamp_blocks,						\
-									 in_stride,							\
-									 dm_count,							\
-									 dm_stride,							\
-									 ndm_blocks,						\
-									 nchans,							\
-									 chan_stride,						\
-									 d_out,								\
-									 out_nbits,							\
-									 out_stride,						\
-									 d_dm_list,							\
-									 batch_in_stride,					\
-									 batch_dm_stride,					\
-									 batch_chan_stride,					\
-									 batch_out_stride)
+	dedisperse_kernel<NBITS,DEDISP_SAMPS_PER_THREAD,BLOCK_DIM_X,	\
+	BLOCK_DIM_Y,USE_TEXTURE_MEM>					\
+	    <<<grid, block, 0, stream>>>(d_in,				\
+					 nsamps,			\
+					 nsamps_reduced,		\
+					 nsamp_blocks,			\
+					 in_stride,			\
+					 dm_count,			\
+					 dm_stride,			\
+					 ndm_blocks,			\
+					 nchans,			\
+					 chan_stride,			\
+					 d_out,				\
+					 out_nbits,			\
+					 out_stride,			\
+					 d_dm_list,			\
+					 batch_in_stride,		\
+					 batch_dm_stride,		\
+					 batch_chan_stride,		\
+					 batch_out_stride)
 	// Note: Here we dispatch dynamically on nbits for supported values
 	if( use_texture_mem ) {
 		switch( in_nbits ) {
@@ -581,9 +581,10 @@ struct unpack_functor
 		int out_chans_per_word = sizeof(WordType)*8 / out_nbits;
 		int in_chans_per_word = sizeof(WordType)*8 / in_nbits;
 		//int expansion = out_nbits / in_nbits;
-		int norm = ((1<<out_nbits)-1) / ((1<<in_nbits)-1);
-		WordType in_mask  = (1<<in_nbits)-1;
-		WordType out_mask = (1<<out_nbits)-1;
+		const uint64_t one = 1L;
+		int norm = ((1<<out_nbits)-one) / ((1<<in_nbits)-one);
+		WordType in_mask  = (1<<in_nbits)-one;
+		WordType out_mask = (1<<out_nbits)-one;
 		
 		/*
 		  cw\k 0123 0123

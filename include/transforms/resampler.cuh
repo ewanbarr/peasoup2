@@ -11,7 +11,7 @@
 #include "misc/constants.h"
 #include "misc/system.cuh"
 #include "transforms/transform_base.cuh"
-#include "utils/printer.hpp"
+#include "utils/logging.hpp"
 
 namespace peasoup {
     namespace transform {
@@ -45,7 +45,7 @@ namespace peasoup {
                                 type::TimeSeries< system,T >& output)
                 :input(input),output(output),accel(0){}
 	    void prepare();
-	    void set_accel(float accel){this->accel=accel;}
+	    void set_accel(float accel);
             void execute();
 	};
     } //transform

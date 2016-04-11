@@ -1,6 +1,8 @@
 #ifndef PEASOUP_TIMESERIES_CUH
 #define PEASOUP_TIMESERIES_CUH
 
+#include <string>
+#include <sstream>
 #include "data_types/metadata.cuh"
 #include "data_types/container.cuh"
 
@@ -13,14 +15,13 @@ namespace peasoup {
 	    float dm;
 	    float acc;
 	    
-	    void display()
+	    std::string display()
 	    {
-		utils::print("----------------------------\n",
-			     __PRETTY_FUNCTION__,"\n",
-			     "Sampling time: ",tsamp," s\n",
-			     "DM: ",dm," pccm^-3\n",
-			     "Acceleration: ",acc," m/s/s\n",
-			     "----------------------------\n");
+		std::stringstream stream;
+		stream << "Sampling time: "<<tsamp<<" s\n"
+		       << "DM: "<<dm<<" pccm^-3\n"
+		       << "Acceleration: "<<acc<<" m/s/s\n";
+		return stream.str();
 	    }
 	    
 	    TimeSeriesMetaData():tsamp(0.0),acc(0.0),dm(0.0){}

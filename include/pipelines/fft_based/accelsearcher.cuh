@@ -15,7 +15,7 @@
 #include "transforms/distillers.cuh"
 #include "pipelines/args.hpp"
 #include "pipelines/accel_plan.hpp"
-#include "utils/printer.hpp"
+#include "utils/logging.hpp"
 
 namespace peasoup {
     namespace pipeline {

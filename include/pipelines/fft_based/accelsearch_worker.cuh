@@ -10,7 +10,7 @@
 #include "pipelines/worker.cuh"
 #include "pipelines/args.hpp"
 #include "utils/utils.cuh"
-#include "utils/printer.hpp"
+#include "utils/logging.hpp"
 
 namespace peasoup {
     namespace pipeline {

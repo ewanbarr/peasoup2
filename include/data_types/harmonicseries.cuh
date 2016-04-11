@@ -1,6 +1,7 @@
 #ifndef PEASOUP_HARMONICSERIES_CUH
 #define PEASOUP_HARMONICSERIES_CUH
 
+
 #include <vector>
 #include <iostream>
 #include <string>
@@ -18,18 +19,16 @@ namespace peasoup {
 	    float acc;
 	    bool nn;
 	    
-	    void display()
+	    std::string display()
             {
-		std::stringstream widths;
+		std::stringstream stream;
+		stream << "Bin widths: ";
 		for (auto i:binwidths)
-		    widths << i << ", ";
-		utils::print("----------------------------\n",
-			     __PRETTY_FUNCTION__,"\n",
-                             "Bin widths: ",widths.str()," Hz\n",
-                             "DM: ",dm," pccm^-3\n",
-                             "Acceleration: ",acc," m/s/s\n",
-                             "Nearest neighbour: ",nn,"\n",
-			     "----------------------------\n");
+		    stream << i << ", ";
+		stream << " Hz\n" << "DM: "<<dm<<" pccm^-3\n"
+		       << "Acceleration: "<<acc<<" m/s/s\n"
+		       << "Nearest neighbour: "<<nn<<"\n";
+		return stream.str();	 
             }
 	    
 	    HarmonicSeriesMetaData()

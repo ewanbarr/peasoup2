@@ -25,22 +25,32 @@ namespace peasoup {
 	template <System system, typename T>
 	void SpectrumFormer<system,T>::prepare()
 	{
-	    utils::print(__PRETTY_FUNCTION__,"\n");
-            input.metadata.display();
+	    LOG(logging::get_logger("transform.spectrumformer"),logging::DEBUG,
+                "Preparing SpectrumFormer\n",
+		"Using nearest neighbour method: ",nn,"\n",
+                "Input metadata:\n",input.metadata.display(),
+                "Input size: ",input.data.size()," samples");
 	    output.data.resize(input.data.size());
 	    output.metadata = input.metadata;
 	    output.metadata.nn = nn;
-	    output.metadata.display();
+	    LOG(logging::get_logger("transform.spectrumformer"),logging::DEBUG,
+		"Prepared SpectrumFormer\n",
+                "Output metadata:\n",output.metadata.display(),
+                "Output size: ",output.data.size()," samples");
 	}
 	
 	template <System system, typename T>
 	void SpectrumFormer<system,T>::execute()
 	{ 
 	    if (nn){
+		LOG(logging::get_logger("transform.spectrumformer"),logging::DEBUG,
+		    "Executing nearest neighbour spectrum forming");
 		thrust::transform(this->get_policy(),input.data.begin()+1,
 				  input.data.end(),input.data.begin(),output.data.begin()+1,
 				  functor::interpolate_spectrum<T>());
 	    } else {
+		LOG(logging::get_logger("transform.spectrumformer"),logging::DEBUG,
+                    "Executing basic spectrum forming");
 		thrust::transform(this->get_policy(),input.data.begin(),
 				  input.data.end(),output.data.begin(),
 				  functor::complex_abs<T>());

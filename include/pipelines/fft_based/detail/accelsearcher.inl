@@ -39,6 +39,8 @@ namespace peasoup {
 	template <>
 	inline void AccelSearch<DEVICE>::set_stream(cudaStream_t stream)
 	{
+	    LOG(logging::get_logger("pipeline.accelsearch"),logging::DEBUG,
+		"Setting stream on transforms (stream: ",stream,")");
 	    resampler->set_stream(stream);
 	    r2cfft->set_stream(stream);
 	    spectrum_former->set_stream(stream);
@@ -49,22 +51,34 @@ namespace peasoup {
 	template <>
 	inline void AccelSearch<HOST>::set_stream(cudaStream_t stream)
 	{
-	    std::cerr << "Setting the stream has no effect on a HOST pipeline" << std::endl;
+	    LOG(logging::get_logger("pipeline.accelsearch"),logging::WARNING,
+		"Setting the stream has no effect on a HOST pipeline");	    
 	}
-
+	
 	template <System system>
         void AccelSearch<system>::prepare()
 	{
+	    LOG(logging::get_logger("pipeline.accelsearch"),logging::DEBUG,
+                "Preparing AccelSearch\n",
+                "Input metadata:\n",input.metadata.display(),
+                "Input size: ",input.data.size()," samples");
+	    
 	    if (!args.acc_plan){
+		LOG(logging::get_logger("pipeline.accelsearch"),logging::DEBUG,
+		    "No acc_plan set in accelsearch args");
 		if (args.user_acc_list.size() > 0){
+		    LOG(logging::get_logger("pipeline.accelsearch"),logging::DEBUG,
+			"Setting up StaticAccelerationPlan with ",args.user_acc_list.size(),
+			" user defined accelerations");
 		    args.acc_plan = std::make_shared<StaticAccelerationPlan>(args.user_acc_list);
 		} else {
+		    LOG(logging::get_logger("pipeline.accelsearch"),logging::DEBUG,
+                        "Setting up DMDependentAccelerationPlan");
 		    args.acc_plan = std::make_shared<DMDependentAccelerationPlan>
 			(args.acc_start,args.acc_end,args.acc_tol,args.acc_pulse_width,
 			 input.data.size(),input.metadata.tsamp, args.cfreq, args.chbw);
 		}
 	    }
-	    
 	    resampler->prepare();
 	    r2cfft->prepare();
 	    spectrum_former->prepare();
@@ -79,7 +93,8 @@ namespace peasoup {
 	    std::vector<type::Detection> acc_dets;
 	    args.acc_plan->get_accelerations(acc_list,input.metadata.dm);
 	    for (float accel: acc_list){
-		utils::print("Processing acceleration: ",accel,"\n");
+		LOG(logging::get_logger("pipeline.accelsearch"),logging::DEBUG,
+		    "Processing acceleration: ",accel," m/s/s");
 		resampler->set_accel(accel);
 		resampler->execute();
 		r2cfft->execute();
@@ -87,18 +102,14 @@ namespace peasoup {
 		harmsum->execute();
 		peak_finder->execute();
 		harmonic_still->distill(harm_dets,acc_dets);
-		for (auto det: harm_dets)
-		    {
-			printf("F: %f  P: %f  S: %f  H: %d\n",det.freq,det.power,det.sigma,det.nh);
-		    }
+		LOG(logging::get_logger("pipeline.accelsearch"),logging::DEBUG,
+		    "Pre harmonic distilled candidates\n",type::detections_as_string(harm_dets));
 		harm_dets.clear();
 	    }
 	    acceleration_still->distill(acc_dets,dets);
-	    printf("Final N cands: %d\n",dets.size());
-	    for (auto det: acc_dets)
-		{
-		    printf("F: %f  P: %f  S: %f  H: %d\n",det.freq,det.power,det.sigma,det.nh);
-		}
+	    LOG(logging::get_logger("pipeline.accelsearch"),logging::DEBUG,
+		"Pre acceleration distilled candidates\n",type::detections_as_string(acc_dets));
+	    
 	    POP_NVTX_RANGE;
 	}
 

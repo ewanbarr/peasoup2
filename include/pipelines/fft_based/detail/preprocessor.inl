@@ -45,6 +45,8 @@ namespace peasoup {
 	template <>
 	inline void Preprocessor<DEVICE>::set_stream(cudaStream_t stream)
 	{
+	    LOG(logging::get_logger("pipeline.preprocessor"),logging::DEBUG,
+		"Setting stream on transforms (stream: ",stream,")");
 	    padder->set_stream(stream);
 	    r2cfft->set_stream(stream);
             spectrum_former->set_stream(stream);
@@ -57,12 +59,17 @@ namespace peasoup {
 	template <>
 	inline void Preprocessor<HOST>::set_stream(cudaStream_t stream)
 	{
-	    std::cerr << "Setting the stream has no effect on a HOST pipeline" << std::endl;
+	    LOG(logging::get_logger("pipeline.preprocessor"),logging::WARNING,
+		"Setting the stream has no effect on a HOST pipeline");
 	}
 
 	template <System system>
         void Preprocessor<system>::prepare()
 	{
+	    LOG(logging::get_logger("pipeline.preprocessor"),logging::DEBUG,
+		"Preparing preprocessor pipeline\n",
+		"Input metadata:\n",input.metadata.display(),
+                "Input size: ",input.data.size()," samples");
 	    padder->prepare();
 	    r2cfft->prepare();
 	    spectrum_former->prepare();
@@ -70,11 +77,17 @@ namespace peasoup {
 	    normaliser->prepare();
 	    zapper->prepare();
 	    c2rfft->prepare();
+	    LOG(logging::get_logger("pipeline.preprocessor"),logging::DEBUG,
+                "Prepared preprocessor pipeline\n",
+                "Output metadata:\n",output.metadata.display(),
+                "Output size: ",output.data.size()," samples");
 	}
 
 	template <System system>
         void Preprocessor<system>::run()
 	{
+	    LOG(logging::get_logger("pipeline.preprocessor"),logging::DEBUG,
+		"Executing preprocessor pipeline");
 	    PUSH_NVTX_RANGE(__PRETTY_FUNCTION__,1)
             padder->execute();	
 	    r2cfft->execute();

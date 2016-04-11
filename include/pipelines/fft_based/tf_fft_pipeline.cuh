@@ -10,6 +10,7 @@
 #include "pipelines/args.hpp"
 #include "utils/utils.cuh"
 #include "transforms/dedisperser.cuh"
+#include "utils/logging.hpp"
 
 namespace peasoup {
     namespace pipeline {

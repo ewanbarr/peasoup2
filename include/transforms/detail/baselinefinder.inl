@@ -1,4 +1,5 @@
 #include "transforms/baselinefinder.cuh"
+#include <sstream>
 
 namespace peasoup {
     namespace transform {
@@ -123,8 +124,11 @@ namespace peasoup {
 	template <System system, typename T>
 	void BaselineFinder<system,T>::prepare()
 	{
-	    utils::print(__PRETTY_FUNCTION__,"\n");
-            input.metadata.display();
+	    LOG(logging::get_logger("transform.baselinefinder"),logging::DEBUG,
+                "Preparing BaselineFinder\n",
+                "Input metadata:\n",input.metadata.display(),
+                "Input size: ",input.data.size()," samples");
+	    
 	    output.data.resize(input.data.size());
 	    intermediate.resize(input.data.size());
 	    output.metadata = input.metadata;
@@ -136,23 +140,33 @@ namespace peasoup {
 	    unsigned window;
 	    size_t boundary_idx;
 	    float boundary;
+	    
+	    std::stringstream tmp;
 	    while (true) {
 		window = pow((unsigned)5,(unsigned)power) ;
 		boundary = SPEED_OF_LIGHT * window / (k * accel_max * tobs * tobs);
 		boundary_idx = min((unsigned) (boundary/input.metadata.binwidth), (unsigned) input.data.size());
 		boundaries.push_back(boundary_idx);
-		printf("Boundary: %f Hz (%d) power %d\n",boundary,boundary_idx,window);
+		tmp << "Boundary: "<<boundary<<" Hz ("<<boundary_idx<<") power "<<window<<"\n";
 		medians.push_back( vector_type(input.data.size()/window) );
 		if (boundary>nyquist)
-			break;
+		    break;
 		power+=1;
 	    }
-	    output.metadata.display();
+	    LOG(logging::get_logger("transform.baselinefinder"),logging::DEBUG,
+		"\n Median smoothing window boundaries:\n",tmp.str());
+	    
+	    LOG(logging::get_logger("transform.baselinefinder"),logging::DEBUG,
+		"Prepared BaselineFinder\n",
+                "Output metadata:\n",output.metadata.display(),
+                "Output size: ",output.data.size()," samples");
 	}
 	
 	template <System system, typename T>
         void BaselineFinder<system,T>::execute()
 	{
+	    LOG(logging::get_logger("transform.baselinefinder"),logging::DEBUG,
+                "Executing baseline finder");
 	    vector_type* in = &(input.data);
 	    vector_type* out;
 	    size_t offset = 0;

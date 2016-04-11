@@ -10,7 +10,7 @@
 #include "misc/constants.h"
 #include "data_types/frequencyseries.cuh"
 #include "transforms/transform_base.cuh"
-#include "utils/printer.hpp"
+#include "utils/logging.hpp"
 
 namespace peasoup {
     namespace transform {

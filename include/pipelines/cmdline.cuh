@@ -6,10 +6,11 @@
 #include <ctime>
 #include <tclap/CmdLine.h>
 #include "pipelines/args.hpp"
+#include "utils/logging.hpp"
 
 namespace peasoup {
     namespace cmdline {
-
+	
 	std::string get_utc_str()
 	{
 	    char buf[128];
@@ -50,6 +51,10 @@ namespace peasoup {
 							     "Birdie list file",
 							     false, "", "string",cmd);
 		
+		TCLAP::ValueArg<std::string> arg_loglevel("", "loglevel",
+							  "The default log level [CRITICAL,ERROR,WARNING,INFO,DEBUG] (def=WARNING)",
+							  false, "WARNING", "string",cmd);
+
 		TCLAP::SwitchArg arg_verbose("v", "verbose", "verbose mode", cmd);
 
 		TCLAP::SwitchArg arg_progress_bar("p", "progress_bar", "Enable progress bar for DM search", cmd);
@@ -156,11 +161,14 @@ namespace peasoup {
 		args.tf_fft_args.accelsearch.nfft              = arg_nfft.getValue();
 		args.tf_fft_args.accelsearch.min_freq          = arg_min_freq.getValue();
 		
+		//set up logging
+		logging::set_default_log_level_from_string(arg_loglevel.getValue());
+
 	    }catch (TCLAP::ArgException &e) {
-		std::cerr << "Error: " << e.error() << " for arg " << e.argId()
-			  << std::endl;
+		LOG(logging::get_logger("default"),logging::CRITICAL,"Error: ",e.error()," for arg ",e.argId());
 		return false;
 	    }
+	    LOG(logging::get_logger("default"),logging::DEBUG,"Command line parsed successfully");
 	    return true;
 	}
     } // cmdline

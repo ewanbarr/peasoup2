@@ -4,6 +4,7 @@
 #include <vector>
 #include "data_types/candidates.cuh"
 #include "utils/chi2lib.hpp"
+#include "utils/logging.hpp"
 
 namespace peasoup {
     namespace transform {

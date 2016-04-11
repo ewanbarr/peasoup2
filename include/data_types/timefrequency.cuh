@@ -1,6 +1,8 @@
 #ifndef PEASOUP_TIMEFREQUENCY_CUH
 #define PEASOUP_TIMEFREQUENCY_CUH
 
+#include <string>
+#include <sstream>
 #include "data_types/metadata.cuh"
 #include "data_types/container.cuh"
 
@@ -14,15 +16,14 @@ namespace peasoup {
 	    float foff;
 	    float fch1;
 
-	    void display()
+	    std::string display()
 	    {
-		utils::print("----------------------------\n",
-			     __PRETTY_FUNCTION__,"\n",
-			     "Sampling time: ",tsamp," s\n",
-			     "Channel bandwidth: ",foff," MHz\n",
-			     "Top frequency: ",fch1," MHz\n",
-			     "Nchans: ",nchans,"\n",
-			     "----------------------------\n");
+		std::stringstream stream;
+		stream << "Sampling time: "<<tsamp<<" s\n"
+		       << "Channel bandwidth: "<<foff<<" MHz\n"
+		       << "Top frequency: "<<fch1<<" MHz\n"
+		       << "Nchans: "<<nchans<<"\n";
+		return stream.str();
 	    }
 	    
 	    TimeFrequencyMetaData()

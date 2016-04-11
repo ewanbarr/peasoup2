@@ -5,6 +5,9 @@ namespace peasoup {
 	
 	inline void DistillerBase::distill(dets_type& cands, dets_type& out_cands)
 	{
+	    LOG(logging::get_logger("transform.distiller"),logging::DEBUG,
+                "Distilling ",cands.size(),"candidates");
+	    
 	    int ii,idx,start,count;
 	    size = cands.size();
 	    unique.resize(size,true);
@@ -34,6 +37,8 @@ namespace peasoup {
 		if (unique[ii])
 		    out_cands.push_back(cands[ii]);
 	    }
+	    LOG(logging::get_logger("transform.distiller"),logging::DEBUG,
+                "Remaining candidates: ",out_cands.size());
 	}
 	
 	inline HarmonicDistiller::HarmonicDistiller(float tol,float max_harm)

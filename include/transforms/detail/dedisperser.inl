@@ -14,6 +14,7 @@ namespace peasoup {
 		      << " failed with DEDISP error: "
 		      << dedisp_get_error_string(error)
 		      << std::endl;
+	    LOG(logging::get_logger("transform.dedisperser"),logging::ERROR,error_msg.str());
 	    throw std::runtime_error(error_msg.str());
 	}
     }
@@ -26,6 +27,8 @@ namespace peasoup {
 	    :input(input),output(output),num_gpus(num_gpus),
 	     chan_mask(std::vector<int>(input.metadata.nchans,1))
 	{
+	    LOG(logging::get_logger("transform.dedisperser"),logging::DEBUG,
+		"Creating Dedisp plan");
             DEDISP_SAFE_CALL(dedisp_create_plan_multi(
 	          &plan, input.metadata.nchans, input.metadata.tsamp,
 	          input.metadata.fch1, input.metadata.foff, num_gpus));
@@ -51,9 +54,13 @@ namespace peasoup {
 	
 	void Dedisperser::prepare()
 	{
+	    LOG(logging::get_logger("transform.dedisperser"),logging::DEBUG,
+                "Preparing Dedisperser\n",
+                "Input metadata:\n",input.metadata.display(),
+                "Input size: ",input.data.size()," samples");
+	    
 	    assert(dm_list.size() > 0);
 	    DEDISP_SAFE_CALL(dedisp_set_dm_list(plan,&dm_list[0],dm_list.size()));
-
 	    if (chan_mask.size()>0)
 		DEDISP_SAFE_CALL(dedisp_set_killmask(plan,&chan_mask[0]));
 
@@ -62,10 +69,18 @@ namespace peasoup {
 	    output.data.resize(out_nsamps*dm_list.size());
 	    output.metadata.dms = dm_list;
 	    output.metadata.tsamp = input.metadata.tsamp;
+	    LOG(logging::get_logger("transform.dedisperser"),logging::DEBUG,
+                "Prepared Dedisperser\n",
+                "Output metadata:\n",output.metadata.display(),
+                "Output size: ",output.data.size()," samples\n",
+		"Number of DMs: ",dm_list.size(),"\n",
+		"Using chan mask: ",chan_mask.size()!=0);
 	}
 
 	void Dedisperser::execute()
 	{
+	    LOG(logging::get_logger("transform.dedisperser"),logging::DEBUG,
+                "Executing dedispersion");
 	    DEDISP_SAFE_CALL(dedisp_execute(plan,input.get_nsamps(),
 	        &(input.data[0]),input.nbits,&(output.data[0]),8,
 		(unsigned)0));

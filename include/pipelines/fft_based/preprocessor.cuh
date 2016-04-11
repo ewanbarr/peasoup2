@@ -15,6 +15,7 @@
 #include "transforms/zapper.cuh"
 #include "pipelines/args.hpp"
 #include "transforms/pad.cuh"
+#include "utils/logging.hpp"
 
 namespace peasoup {
 

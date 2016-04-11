@@ -105,8 +105,10 @@ namespace peasoup {
 	template <System system, typename T>
 	void HarmonicSum<system,T>::prepare()
 	{
-	    utils::print(__PRETTY_FUNCTION__,"\n");
-	    input.metadata.display();
+	    LOG(logging::get_logger("transform.harmonicsum"),logging::DEBUG,
+                "Preparing HarmonicSum\n",
+                "Input metadata:\n",input.metadata.display(),
+                "Input size: ",input.data.size()," samples");
 	    output.data.resize(input.data.size()*nharms);
 	    output.metadata.binwidths.clear();
 	    for (int ii=0;ii<nharms;ii++)
@@ -115,13 +117,18 @@ namespace peasoup {
 	    output.metadata.acc = input.metadata.acc;
 	    input_ptr = thrust::raw_pointer_cast(input.data.data());
 	    output_ptr = thrust::raw_pointer_cast(output.data.data());
-	    output.metadata.display();
+	    LOG(logging::get_logger("transform.harmonicsum"),logging::DEBUG,
+                "Prepared HarmonicSum\n",
+                "Output metadata:\n",output.metadata.display(),
+                "Output size: ",output.data.size()," samples");
 	}
 	
 
 	template <System system, typename T>
 	void HarmonicSum<system,T>::_default_execute()
 	{
+	    LOG(logging::get_logger("transform.harmonicsum"),logging::DEBUG,
+		"Executing default harmonic summing kernel");
 	    thrust::counting_iterator<size_t> begin(0);
 	    thrust::counting_iterator<size_t> end = begin + input.data.size();
 	    thrust::for_each(this->get_policy(), begin, end,functor::harmonic_sum<T>
@@ -140,10 +147,11 @@ namespace peasoup {
 	    if (use_default)
 		_default_execute();
 	    else {
+		LOG(logging::get_logger("transform.harmonicsum"),logging::DEBUG,
+		    "Executing texturised harmonic summing kernel");
 		int nthreads = 1024; // hardwired for k40 occupancy
 		int nblocks = input.data.size()/nthreads + 1;
 		cudaBindTexture(0, harmonic_sum_texture, (void*)input_ptr, input.data.size()*sizeof(float));
-		printf("Nblocks: %d, Nthreads: %d\n",nblocks,nthreads);
 		kernel::harmonic_sum_kernel<<<nblocks,nthreads,0,this->stream>>>
 		    (input_ptr, output_ptr,(unsigned int)input.data.size(),nharms);
 		this->sync();

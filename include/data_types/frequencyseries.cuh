@@ -1,6 +1,8 @@
 #ifndef PEASOUP_FREQUENCYSERIES_CUH
 #define PEASOUP_FREQUENCYSERIES_CUH
 
+#include <string>
+#include <sstream>
 #include "data_types/metadata.cuh"
 #include "data_types/container.cuh"
 #include "utils/printer.hpp"
@@ -15,15 +17,14 @@ namespace peasoup {
 	    float acc;
 	    bool nn;
 	    
-	    void display()
+	    std::string display()
 	    {
-		utils::print("----------------------------\n",
-			     __PRETTY_FUNCTION__,"\n",
-			     "Bin width: ",binwidth," Hz\n",
-			     "DM: ",dm," pccm^-3\n",
-			     "Acceleration: ",acc," m/s/s\n",
-			     "Nearest neighbour: ",nn,"\n",
-			     "----------------------------\n");
+		std::stringstream stream;
+		stream << "Bin width: "<<binwidth<<" Hz\n"<<
+		    "DM: "<<dm<<" pccm^-3\n"<<
+		    "Acceleration: "<<acc<<" m/s/s\n"<<
+		    "Nearest neighbour: "<<nn<<"\n";
+		return stream.str();
 	    }
 	    
 	    FrequencySeriesMetaData()

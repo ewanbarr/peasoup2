@@ -8,7 +8,7 @@
 #include "data_types/harmonicseries.cuh"
 #include <thrust/execution_policy.h>
 #include "transforms/transform_base.cuh"
-#include "utils/printer.hpp"
+#include "utils/logging.hpp"
 
 texture<float, 1, cudaReadModeElementType> harmonic_sum_texture;
 

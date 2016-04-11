@@ -36,6 +36,7 @@ namespace peasoup {
 			}
 		    catch(std::runtime_error &e)
 			{
+			    printf("AAAAAAAAAAAAAAAAAARG\n");
 			    throw;
 			}
 		}
