@@ -48,23 +48,6 @@ namespace peasoup {
 	
 
 	template <System system, typename T>
-	class BaselineFinder: public Transform<system>
-	{
-	protected:
-	    typedef typename SystemVector<system,T>::vector_type vector_type;
-	    vector_type intermediate;
-	    std::vector< vector_type > medians;
-	    void median_scrunch5(const vector_type& in, vector_type& out);
-            void linear_stretch(const vector_type& in, vector_type& out, float step);
-
-	public:
-	    const std::vector< vector_type >& get_medians() {return medians;};
-	    virtual void prepare()=0;
-            virtual void execute()=0;
-	}
-
-	
-	template <System system, typename T>
 	class BaselineFinder: public Transform<system,>
 	{
 	private:
