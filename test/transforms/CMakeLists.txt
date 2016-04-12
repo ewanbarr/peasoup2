@@ -43,3 +43,12 @@ set(
 cuda_add_executable(gtest_transform_distillers ${gtest_transform_distillers_src})
 target_link_libraries(gtest_transform_distillers ${GTEST_LIBRARIES})
 target_link_libraries(gtest_transform_distillers chi2lib)
+
+#-----------test cached downsampler---------#
+set(
+    gtest_transform_cachedownsampler_src
+    test_cachedownsampler.cu
+    )
+
+cuda_add_executable(gtest_transform_cachedownsampler ${gtest_transform_cachedownsampler_src})
+target_link_libraries(gtest_transform_cachedownsampler ${GTEST_LIBRARIES})

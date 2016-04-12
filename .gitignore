@@ -33,3 +33,6 @@
 #directories
 bin/
 build/
+
+#misc files
+notes.txt

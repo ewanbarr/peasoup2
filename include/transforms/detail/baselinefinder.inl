@@ -1,5 +1,6 @@
 #include "transforms/baselinefinder.cuh"
 #include <sstream>
+#include <cmath>
 
 namespace peasoup {
     namespace transform {
@@ -122,10 +123,10 @@ namespace peasoup {
 	}
 	
 	template <System system, typename T>
-	void BaselineFinder<system,T>::prepare()
+	void FDBaselineFinder<system,T>::prepare()
 	{
-	    LOG(logging::get_logger("transform.baselinefinder"),logging::DEBUG,
-                "Preparing BaselineFinder\n",
+	    LOG(logging::get_logger("transform.fdbaselinefinder"),logging::DEBUG,
+                "Preparing FDBaselineFinder\n",
                 "Input metadata:\n",input.metadata.display(),
                 "Input size: ",input.data.size()," samples");
 	    
@@ -148,33 +149,33 @@ namespace peasoup {
 		boundary_idx = min((unsigned) (boundary/input.metadata.binwidth), (unsigned) input.data.size());
 		boundaries.push_back(boundary_idx);
 		tmp << "Boundary: "<<boundary<<" Hz ("<<boundary_idx<<") power "<<window<<"\n";
-		medians.push_back( vector_type(input.data.size()/window) );
+		this->medians.push_back( vector_type(input.data.size()/window) );
 		if (boundary>nyquist)
 		    break;
 		power+=1;
 	    }
-	    LOG(logging::get_logger("transform.baselinefinder"),logging::DEBUG,
+	    LOG(logging::get_logger("transform.fdbaselinefinder"),logging::DEBUG,
 		"\n Median smoothing window boundaries:\n",tmp.str());
 	    
-	    LOG(logging::get_logger("transform.baselinefinder"),logging::DEBUG,
-		"Prepared BaselineFinder\n",
+	    LOG(logging::get_logger("transform.fdbaselinefinder"),logging::DEBUG,
+		"Prepared FDBaselineFinder\n",
                 "Output metadata:\n",output.metadata.display(),
                 "Output size: ",output.data.size()," samples");
 	}
 	
 	template <System system, typename T>
-        void BaselineFinder<system,T>::execute()
+        void FDBaselineFinder<system,T>::execute()
 	{
-	    LOG(logging::get_logger("transform.baselinefinder"),logging::DEBUG,
+	    LOG(logging::get_logger("transform.fdbaselinefinder"),logging::DEBUG,
                 "Executing baseline finder");
 	    vector_type* in = &(input.data);
 	    vector_type* out;
 	    size_t offset = 0;
 	    float step = 5;
 	    for (int ii=0;ii<boundaries.size();ii++){
-		out = &medians[ii];
-		median_scrunch5(*in,*out);
-		linear_stretch(*out,intermediate,step);
+		out = &(this->medians)[ii];
+		this->median_scrunch5(*in,*out);
+		this->linear_stretch(*out,intermediate,step);
 		thrust::copy_n(intermediate.begin()+offset,
 			       boundaries[ii]-offset,
 			       output.data.begin()+offset);
@@ -183,6 +184,51 @@ namespace peasoup {
 		step *= 5;
 	    }
 	}
+
+	template <System system, typename T>
+	void TDBaselineFinder<system,T>::prepare()
+        {
+            LOG(logging::get_logger("transform.tdbaselinefinder"),logging::DEBUG,
+                "Preparing TDBaselineFinder\n",
+                "Input metadata:\n",input.metadata.display(),
+                "Input size: ",input.data.size()," samples");
+
+            output.data.resize(input.data.size());
+	    output.metadata = input.metadata;
+	    
+	    float window = smoothing_interval/input.metadata.tsamp;
+	    unsigned nsteps = (unsigned) (std::log10(window)/std::log10(5.0));
+	    unsigned step = 5;
+	    for (int ii=0;ii<nsteps;ii++)
+		{
+		    this->medians.push_back( vector_type(input.data.size()/step) );
+		    step*=5;
+		}
+            LOG(logging::get_logger("transform.tdbaselinefinder"),logging::DEBUG,
+                "Prepared TDBaselineFinder\n",
+                "Output metadata:\n",output.metadata.display(),
+                "Output size: ",output.data.size()," samples");
+        }
+	
+	template <System system, typename T>
+        void TDBaselineFinder<system,T>::execute()
+        {
+            LOG(logging::get_logger("transform.tdbaselinefinder"),logging::DEBUG,
+                "Executing baseline finder");
+            vector_type* in = &(input.data);
+            vector_type* out;
+            float step = 5;
+            for (int ii=0;ii<this->medians.size();ii++){
+                out = &(this->medians)[ii];
+                this->median_scrunch5(*in,*out);
+		in = out;
+		step*=5;
+	    }
+	    this->linear_stretch(*out,output.data,step/5);
+        }
+
+
+
     } //transform
 } //peasoup
 

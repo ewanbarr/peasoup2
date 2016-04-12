@@ -24,7 +24,7 @@ namespace peasoup {
 	    padder = new Pad<system,float>(input,input.data.size(),args.nfft);
 	    r2cfft = new RealToComplexFFT<system>(input,fourier);
 	    spectrum_former = new SpectrumFormer<system,float>(fourier,spectrum,false);
-	    baseline_finder = new BaselineFinder<system,float>(spectrum,baseline,max_accel);
+	    baseline_finder = new FDBaselineFinder<system,float>(spectrum,baseline,max_accel);
 	    normaliser = new Normaliser<system,float>(fourier,fourier,baseline);
 	    zapper = new Zapper<system,float>(fourier,args.birdies);
 	    c2rfft = new ComplexToRealFFT<system>(fourier,output);
