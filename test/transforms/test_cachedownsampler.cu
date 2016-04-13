@@ -27,7 +27,7 @@ void test_case(size_t in_size, unsigned factor)
     hin.metadata.acc = 0;
     
     for (ii=0;ii<in_size;ii++){
-	hin.data[ii] = ii;//dist(rng);
+	hin.data[ii] = ii;
     }
     
     type::TimeSeries<system,float> din = hin;
@@ -43,6 +43,25 @@ void test_case(size_t in_size, unsigned factor)
 		ASSERT_FLOAT_EQ(node->data->data[kk],(kk+1)*nearest-nearest/2.0-0.5);
 	    }
     }
+
+
+    for (ii=0;ii<in_size;ii++){
+        hin.data[ii] = 1.0;
+    }
+    type::TimeSeries<system,float> din2 = hin;
+    downsampler.set_data(&din2);
+
+    for (int jj=1;jj<123;jj++){
+        unsigned nearest = downsampler.closest_factor(jj);
+        printf("Nearest factor to %d is %d\n",jj,nearest);
+        cache* node = downsampler.downsample(nearest);
+        node->data->metadata.display();
+        if (jj>1)
+            for (int kk=0;kk<node->data->data.size();kk++){
+                ASSERT_FLOAT_EQ(node->data->data[kk],1.0);
+            }
+    }
+
 }
 
 TEST(DownsampleTest,TestHost)

@@ -41,11 +41,11 @@ namespace peasoup {
 	    CachedDownsampler<system,T>* parent;
 	    std::map<unsigned, CachedDownsampler<system,T>*> cache;
 	    type::TimeSeries<system,T>* data;
-	    size_t size;
 	    unsigned int downsampled_factor;
 	    utils::Factoriser* factoriser;
 	    unsigned int max_factor;
-	    
+	    bool new_parent;
+
 	    CachedDownsampler(type::TimeSeries<system,T>* data,
 			      unsigned int max_factor=32);
 	    CachedDownsampler(CachedDownsampler<system,T>* parent,
@@ -54,6 +54,8 @@ namespace peasoup {
 	    ~CachedDownsampler();
 	    unsigned int closest_factor(unsigned int factor);
 	    CachedDownsampler* downsample(unsigned int factor);
+	    void set_data(type::TimeSeries<system,T>* data);
+	    void notify();
 	};
 	    
     } //transform
