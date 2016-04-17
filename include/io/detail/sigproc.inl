@@ -106,7 +106,8 @@ namespace peasoup {
 		header.size = stream->tellg();
 		// Compute the number of samples from the file size
 		stream->seekg(0, std::ios::end);
-		header.nsamples = (stream->tellg()-header.size) / header.nchans * 8 / header.nbits;
+		
+		header.nsamples = (size_t)((stream->tellg()-header.size)* 8) / header.nchans / header.nbits;
 		// Seek back to the end of the header
 		stream->seekg(header.size, std::ios::beg);
 		return header;
@@ -158,7 +159,7 @@ namespace peasoup {
 		data.metadata.fch1 = header.fch1;
 		data.metadata.nchans = header.nchans;
 		data.metadata.foff = header.foff;
-		data.data.resize(nbits * header.nsamples * header.nchans / 8);
+		data.data.resize(nbits * (size_t) header.nsamples * header.nchans / 8);
 		stream->read_vector< decltype(data.data) >(data.data);
 	    }
 

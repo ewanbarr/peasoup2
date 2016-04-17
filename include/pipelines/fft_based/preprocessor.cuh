@@ -38,7 +38,7 @@ namespace peasoup {
 	    Pad<system,float>* padder;
 	    Normaliser<system,float>* normaliser;
 	    SpectrumFormer<system,float>* spectrum_former;
-	    BaselineFinder<system,float>* baseline_finder;
+	    FDBaselineFinder<system,float>* baseline_finder;
 	    RealToComplexFFT<system>* r2cfft;
 	    ComplexToRealFFT<system>* c2rfft;
 	    AccelSearchArgs& args;

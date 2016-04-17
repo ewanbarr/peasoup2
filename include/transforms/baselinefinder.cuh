@@ -48,30 +48,62 @@ namespace peasoup {
 	
 
 	template <System system, typename T>
-	class BaselineFinder: public Transform<system,>
+	class BaselineFinder: public Transform<system>
+	{
+	protected:
+	    typedef typename SystemVector<system,T>::vector_type vector_type;
+	    std::vector< vector_type > medians;
+	    void median_scrunch5(const vector_type& in, vector_type& out);
+            void linear_stretch(const vector_type& in, vector_type& out, float step);
+
+	public:
+	    const std::vector< vector_type >& get_medians() {return medians;};
+	    virtual void prepare()=0;
+            virtual void execute()=0;
+	};
+	
+	template <System system, typename T>
+	class FDBaselineFinder: public BaselineFinder<system,T>
 	{
 	private:
 	    typedef typename SystemVector<system,T>::vector_type vector_type;
 	    type::FrequencySeries< system,T >& input;
 	    type::FrequencySeries< system,T >& output;
-	    vector_type intermediate;
-	    std::vector< vector_type > medians;
 	    std::vector< size_t > boundaries;
+	    vector_type intermediate;
 	    float accel_max;
-	    void median_scrunch5(const vector_type& in, vector_type& out);
-	    void linear_stretch(const vector_type& in, vector_type& out, float step);
 	    
 	public:
-	    BaselineFinder(type::FrequencySeries< system,T >& input,
-			   type::FrequencySeries< system,T >& output,
-			   float accel_max=500.0)
+	    FDBaselineFinder(type::FrequencySeries< system,T >& input,
+			     type::FrequencySeries< system,T >& output,
+			     float accel_max=500.0)
 		:input(input),output(output),accel_max(accel_max){}
-	    const std::vector< vector_type >& get_medians() {return medians;};
 	    const std::vector< size_t >& get_boundaries() {return boundaries;};
 	    void prepare();
 	    void execute();
-	    
 	};
+
+	template <System system, typename T>
+        class TDBaselineFinder: public BaselineFinder<system,T>
+        {
+        private:
+	    typedef typename SystemVector<system,T>::vector_type vector_type;
+	    type::TimeSeries< system,T >& input;
+	    type::TimeSeries< system,T >& output;
+	    float smoothing_interval; //in seconds
+	    
+        public:
+            TDBaselineFinder(type::TimeSeries< system,T >& input,
+                             type::TimeSeries< system,T >& output,
+			     float smoothing_interval)
+                :input(input),output(output),
+		 smoothing_interval(smoothing_interval){}
+            void prepare();
+            void execute();
+        };
+
+	
+
     } //transform
 } //peasoup
 
