@@ -5,7 +5,7 @@
 
 #include "ffaster.h"
 #include "base.cuh"
-#include "../cub/cub/cub.cuh"
+//#include "../cub/cub/cub.cuh"
 
 namespace FFAster
 {

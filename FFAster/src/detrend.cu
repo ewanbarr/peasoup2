@@ -103,7 +103,11 @@ void Kernels::remove_interpolated_baseline_k(float* input,
     }
 }
 
-
+/* Removing cub depedency 
+   kernel replaced by block_reduce_k_2 
+   but should be changed over to thrust
+   whend fulyl merged into peasoup */
+/*
 __global__
 void Kernels::block_reduce_k(float *input,
 			     float *output,
@@ -126,7 +130,7 @@ void Kernels::block_reduce_k(float *input,
   if (threadIdx.x==0)
     output[blockIdx.x] = sum;
 }
-
+*/
 
 __global__
 void Kernels::block_reduce_k_2(float *input,
@@ -151,23 +155,25 @@ void Kernels::block_reduce_k_2(float *input,
   if (square)
     value = value * value;
   
-  for (int ii=0; ii<5; ii++)
-    value += __shfl_down(value,1<<ii);
-  
+  for (int ii=0; ii<5; ii++){
+      value += __shfl_down(value,1<<ii);
+      __syncthreads();
+  }
+
   if (lane_id == 0)  
     shared[warp_id] = value;
-  
   __syncthreads();
 
   if (threadIdx.x >= WARP_SIZE) 
     return;
   
   value = shared[threadIdx.x];
-  
   __syncthreads();
   
-  for (int ii=0; ii<5; ii++)
-    value += __shfl_down(value,1<<ii);
+  for (int ii=0; ii<5; ii++){
+      value += __shfl_down(value,1<<ii);
+      __syncthreads();
+  }
   
   if (threadIdx.x == 0)
     output[blockIdx.x] = value;  
@@ -281,10 +287,10 @@ template <> float StdDevNormaliser<Base::DeviceTransform>::calculate_normalisati
       nblocks = (int) ceil(n/(float)nthreads);
 
       if (pass == 0)
-	Kernels::block_reduce_k<<<nblocks,nthreads,0,stream>>>
+	Kernels::block_reduce_k_2<<<nblocks,nthreads,0,stream>>>
 	  (input,tmp_out,n,square);
       else
-	Kernels::block_reduce_k<<<nblocks,nthreads,0,stream>>>
+	Kernels::block_reduce_k_2<<<nblocks,nthreads,0,stream>>>
 	  (tmp_in,tmp_out,n,square);
       square = false;
       pass++;
