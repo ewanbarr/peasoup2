@@ -42,7 +42,44 @@ namespace FFAster
       // element 0 should now be the maximum                                                 
       return primary[0];
     }
-    
+
+      __device__ __forceinline__
+      float max_reduce_k_2(float* primary,
+			   float* secondary,
+			   unsigned int size,
+			   unsigned int nlayers)
+      {
+	  int idx;
+	  int warp_id = threadIdx.x/32;
+	  int lane_id = threadIdx.x & 31;
+	  float max_val = 0.0;
+	  
+	  for (idx=threadIdx.x; idx<size; idx+=blockDim.x){
+	      max_val = fmaxf(primary[idx],max_val);
+	  }
+	  
+	  //Now do a warp max reduce for all active warps
+	  for (int ii=0; ii<5; ii++){
+	      fmaxf(max_val,__shfl_down(max_val,1<<ii));
+	      __syncthreads();
+	  }
+	  
+	  if (lane_id==0){
+	      secondary[warp_id] = max_val;
+	  }
+	  __syncthreads();
+	  
+	  if (warp_id!=0) return 0.0;
+	  max_val = secondary[lane_id];
+	  __syncthreads();
+	  
+	  for (int ii=0; ii<5; ii++){
+	      fmaxf(max_val,__shfl_down(max_val,1<<ii));
+	      __syncthreads();
+	  }
+	  return max_val;
+      }
+          
     __global__
     void matched_filter_max_k(float* input,
 			      ffa_output_t* output,

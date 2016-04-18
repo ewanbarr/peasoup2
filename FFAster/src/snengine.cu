@@ -22,6 +22,9 @@ void Kernels::matched_filter_max_k(float* input,
   int width;
   unsigned int idx,shift;
   unsigned int row = blockIdx.x;
+  
+  //if (threadIdx.x>=size)
+  //return;
 
   // Each block handles one "row" of the input                                                             
   // Here we point the block at the start of                                                               

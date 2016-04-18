@@ -35,7 +35,7 @@ unsigned int Factoriser::first_factor(unsigned int factor)
 unsigned int Factoriser::get_nearest_factor(unsigned int factor,
                                             unsigned int max_factor)
 {
-    if (factor==1)return 1;
+    if (factor<=1)return 1;
     if (!factors.count(factor))
 	find_factors(factor);
     if (*std::max_element(factors[factor].begin(),factors[factor].end()) < max_factor)

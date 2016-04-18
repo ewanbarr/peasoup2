@@ -242,22 +242,22 @@ int main(int argc, char **argv)
     FFAster::Utils::device_malloc<char>((char**)&output,output_bytes);
     plan.set_tmp_storage_buffer((void*) tmp_memory,tmp_bytes);
     
-    peasoup::type::TimeSeries<peasoup::DEVICE,float> device_red;
-    device_red.data.resize(dmtrials.get_nsamps());
-    device_red.metadata.tsamp = data.metadata.tsamp;
+    //peasoup::type::TimeSeries<peasoup::DEVICE,float> device_red;
+    //device_red.data.resize(dmtrials.get_nsamps());
+    //device_red.metadata.tsamp = data.metadata.tsamp;
 
     peasoup::type::TimeSeries<peasoup::DEVICE,float> device_input;
-    peasoup::pipeline::AccelSearchArgs aa_args;
-    aa_args.nfft = dmtrials.get_nsamps();    
+    //peasoup::pipeline::AccelSearchArgs aa_args;
+    //aa_args.nfft = dmtrials.get_nsamps();    
 
-    peasoup::pipeline::Preprocessor<peasoup::DEVICE> preprocessor(device_red,device_input,aa_args);
-    preprocessor.prepare();
+    //peasoup::pipeline::Preprocessor<peasoup::DEVICE> preprocessor(device_red,device_input,aa_args);
+    //preprocessor.prepare();
     //While there are DM trials left to process
     //pop a DM trial off the queue
     //Currently this is to host memory, due to the
     //mean filter below
-    //while (queue.pop(host_input)){
-    while (queue.pop(device_red)){
+    while (queue.pop(device_input)){
+    //while (queue.pop(device_red)){
 
 	//Do a running mean to try and alleviate the effects of red noise/
 	//peasoup::type::TimeSeries<peasoup::HOST,float> host_input_dereddened = host_input;
@@ -271,19 +271,19 @@ int main(int argc, char **argv)
 	//Copy dereddened vector to the device for further processing
 	//peasoup::type::TimeSeries<peasoup::DEVICE,float> device_input = host_input_dereddened;
 
-	preprocessor.run();
+	//preprocessor.run();
 
 
-	float* red = thrust::raw_pointer_cast(device_red.data.data());
-	FFAster::Utils::dump_device_buffer<float>(red,device_red.data.size(),"red.bin");
+	//float* red = thrust::raw_pointer_cast(device_red.data.data());
+	//FFAster::Utils::dump_device_buffer<float>(red,device_red.data.size(),"red.bin");
 
-	printf("Procesing trial DM %f\n",device_red.metadata.dm);
+	printf("Procesing trial DM %f\n",device_input.metadata.dm);
 	std::stringstream stream;
-	stream << "periodogram_" << device_red.metadata.dm << ".bin";
+	stream << "periodogram_" << device_input.metadata.dm << ".bin";
 	float* in = thrust::raw_pointer_cast(device_input.data.data());
 
 	//Dump input
-	FFAster::Utils::dump_device_buffer<float>(in,device_input.data.size(),"dered.bin");
+	//FFAster::Utils::dump_device_buffer<float>(in,device_input.data.size(),"dered.bin");
 	
 	//Execute FFA
 	plan.execute(in,output);
