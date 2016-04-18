@@ -20,4 +20,6 @@ namespace FFAster
   };
 }; /* namespace FFAster */
 
+#include "detail/factorise.inl"
+
 #endif

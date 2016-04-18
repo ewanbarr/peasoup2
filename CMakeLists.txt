@@ -46,7 +46,7 @@ include(compiler_settings)
 include(cuda)
 
 # === set up default cuda flags
-set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_20,code=sm_20")
+#set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_20,code=sm_20")
 #set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_30,code=sm_30")
 set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_35,code=sm_35")
 #set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_50,code=sm_50")
@@ -59,3 +59,5 @@ add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(benchmarking)
 
+# === set up FFAster
+add_subdirectory(FFAster)

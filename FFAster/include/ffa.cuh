@@ -54,4 +54,6 @@ namespace FFAster
 
 }; /* namespace FFAster */
 
+#include "detail/ffa.inl"
+
 #endif

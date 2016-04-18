@@ -22,4 +22,6 @@ namespace FFAster
   
 };
 
+#include "detail/generic_kernels.inl"
+
 #endif

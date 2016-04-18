@@ -1,5 +1,3 @@
-
-
 #ifndef FFASTER_DOWNSAMPLE_CUH_
 #define FFASTER_DOWNSAMPLE_CUH_
 
@@ -70,6 +68,8 @@ namespace FFAster {
 			unsigned int factor);
   
 }; /* namespace FFAster */
+
+#include "detail/downsample.inl"
 
 #endif
 

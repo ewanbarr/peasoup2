@@ -319,4 +319,6 @@ namespace FFAster
   
 }; /* namespace FFAster */
 
+#include "detail/detrend.inl"
+
 #endif

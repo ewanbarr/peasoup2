@@ -152,7 +152,7 @@ namespace FFAster {
 
     void running_mean(float* in, float* out, size_t size, unsigned window){
 	
-	unsigned ii,jj;
+	unsigned ii;
 	double sum;
 	size_t count,offset;
 	

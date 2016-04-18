@@ -161,4 +161,7 @@ namespace FFAster
   };
     
 };
+
+#include "detail/snengine.inl"
+
 #endif

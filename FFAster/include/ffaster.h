@@ -9,6 +9,8 @@
 #include <algorithm>
 #include "utils.cuh"
 #include "cuda.h"
+#include "misc/constants.h"
+
 
 #ifndef MAX_THREADS
 #define MAX_THREADS 1024
@@ -20,10 +22,6 @@
 
 #ifndef LOG2_WARP_SIZE
 #define LOG2_WARP_SIZE 5
-#endif
-
-#ifndef SQRT2
-#define SQRT2 1.414213562f
 #endif
 
 #ifndef TWO_PI
