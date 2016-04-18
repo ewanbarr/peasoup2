@@ -9,6 +9,19 @@ namespace FFAster
 {
   namespace Kernels
   {
+      __device__ __forceinline__
+      float max_reduce_k_simple(float* primary,
+				float* secondary,
+				unsigned int size,
+				unsigned int nlayers)
+      {
+	  float max_val = primary[0];
+	  for (int ii=1;ii<size;ii++)
+	      max_val = fmaxf(primary[ii],max_val);
+	  return max_val;
+      }
+
+
     //Inline so needs to be in header
     __device__ __forceinline__
     float max_reduce_k(float* primary,
@@ -53,28 +66,32 @@ namespace FFAster
 	  int warp_id = threadIdx.x/32;
 	  int lane_id = threadIdx.x & 31;
 	  float max_val = 0.0;
+
+	  secondary[threadIdx.x] = 0.0;
 	  
 	  for (idx=threadIdx.x; idx<size; idx+=blockDim.x){
 	      max_val = fmaxf(primary[idx],max_val);
 	  }
+	  __syncthreads();
 	  
 	  //Now do a warp max reduce for all active warps
-	  for (int ii=0; ii<5; ii++){
-	      fmaxf(max_val,__shfl_down(max_val,1<<ii));
+	  for (int ii=16; ii>=1; ii/=2){
+	      if (ii+threadIdx.x < blockDim.x)
+		  max_val = fmaxf(max_val,__shfl_down(max_val,ii));
 	      __syncthreads();
 	  }
-	  
-	  if (lane_id==0){
+	  	  
+	  if (lane_id==0)
 	      secondary[warp_id] = max_val;
-	  }
 	  __syncthreads();
 	  
 	  if (warp_id!=0) return 0.0;
 	  max_val = secondary[lane_id];
 	  __syncthreads();
 	  
-	  for (int ii=0; ii<5; ii++){
-	      fmaxf(max_val,__shfl_down(max_val,1<<ii));
+	  for (int ii=16; ii>=1; ii/=2){
+	      if (ii+threadIdx.x < blockDim.x)
+		  max_val = fmaxf(max_val,__shfl_down(max_val,ii));
 	      __syncthreads();
 	  }
 	  return max_val;

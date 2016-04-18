@@ -1,4 +1,3 @@
-
 #include "snengine.cuh"
 
 using namespace FFAster;
@@ -44,6 +43,7 @@ void Kernels::matched_filter_max_k(float* input,
   __syncthreads();
   
   //get max with no filtering first                                                                        
+  //max_val = max_reduce_k_simple(max_primary,max_secondary,size,nlayers);
   max_val = max_reduce_k(max_primary,max_secondary,size,nlayers);
   width = 1;
   /*
@@ -76,6 +76,7 @@ void Kernels::matched_filter_max_k(float* input,
 
       // Determine the maximum value of the row                                                            
       // using a power of 2 parallel reduction                                                             
+      //new_max = max_reduce_k_simple(max_primary,max_secondary,size,nlayers);
       new_max = max_reduce_k(max_primary,max_secondary,size,nlayers);
       
       if (new_max > max_val)
@@ -103,7 +104,7 @@ void MatchedFilterAnalyser<Base::DeviceTransform>::execute
 {
   int nblocks = ydim;
   int nthreads = min((int)xdim,(int)MAX_THREADS);
-  int shared_space = 4 * sizeof(float) * xdim;
+  int shared_space = 4 * sizeof(float) * xdim; //Dubious -- need to check this number
   int nwidths = (int) log2(xdim*max_width_fraction);
   int nlayers = (int) ceil(log2((float)xdim));
   Kernels::matched_filter_max_k<<<nblocks,nthreads,shared_space,stream>>>
