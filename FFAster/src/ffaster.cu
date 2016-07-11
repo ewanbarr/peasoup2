@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <ctime>
+#include <vector>
 #include <tclap/CmdLine.h>
 #include "utils/logging.hpp"
 #include "ffaplan.cuh"
@@ -16,6 +17,7 @@
 #include "pipelines/dmtrialqueue.cuh"
 #include "pipelines/cmdline.cuh"
 #include "pipelines/fft_based/preprocessor.cuh"
+#include "distiller.cuh"
 
 namespace FFAster {
     namespace cmdline {
@@ -34,6 +36,11 @@ namespace FFAster {
 	    float max_period = 20.0; //maximum period to search in seconds
 	    float min_duty_cycle = 0.001; //minimum duty cycle to look for 
 	    int nstreams = 16; //number of streams to use (this may have no effect) 
+	    float thresh = 10.0; //peak threshold
+	    float lthresh = 9.0; //lower threshold
+	    float dthresh = 0.2; //dynamic threshold
+	    float tolerance = 0.001; //tolerance for harmonic matching
+	    int max_harm = 32; //maximum harmonic to match to
 	};
 
 	struct Options 
@@ -99,6 +106,26 @@ namespace FFAster {
                                                   "The number of streams to use per GPU",
                                                   false, args.ffa.nstreams, "int", cmd);
 
+		TCLAP::ValueArg<float> arg_thresh("", "thresh",
+						"The primary threshold for peak selection",
+						false, args.ffa.thresh, "float", cmd);
+		
+		TCLAP::ValueArg<float> arg_lthresh("", "lthresh",
+                                                "The lower threshold for peak selection",
+                                                false, args.ffa.lthresh, "float", cmd);
+
+		TCLAP::ValueArg<float> arg_dthresh("", "dthresh",
+                                                "The dynamic threshold for peak selection",
+                                                false, args.ffa.dthresh, "float", cmd);
+
+		TCLAP::ValueArg<float> arg_tolerance("", "tol",
+						     "Harmonic matching tolerance",
+						     false, args.ffa.tolerance, "float", cmd);
+		
+		TCLAP::ValueArg<int> arg_max_harm("", "max_harm",
+						  "The maximum harmonic to match out to",
+						  false, args.ffa.max_harm, "int", cmd);
+		
 
                 /*------------------------ DedispersionArgs ------------------------*/
 		TCLAP::ValueArg<float> arg_dm_start("", "dm_start",
@@ -121,6 +148,9 @@ namespace FFAster {
                                                           false, args.dedispersion.dm_pulse_width,
                                                           "float (us)",cmd);
 
+
+		/*-----------------------Peak selection---------------------------*/
+
                 cmd.parse(argc, argv);
 
                 //Options
@@ -136,6 +166,11 @@ namespace FFAster {
                 args.ffa.min_period          = arg_min_period.getValue();
 		args.ffa.min_duty_cycle      = arg_min_duty_cycle.getValue();
 		args.ffa.nstreams            = arg_nstreams.getValue();
+		args.ffa.thresh              = arg_thresh.getValue();
+		args.ffa.lthresh             = arg_lthresh.getValue();
+		args.ffa.dthresh             = arg_dthresh.getValue();
+		args.ffa.tolerance           = arg_tolerance.getValue();
+		args.ffa.max_harm            = arg_max_harm.getValue();		    
 
                 //DedispersionArgs
                 args.dedispersion.dm_start          = arg_dm_start.getValue();
@@ -238,6 +273,21 @@ int main(int argc, char **argv)
     size_t tmp_bytes = plan.get_required_tmp_bytes();
     char* tmp_memory;
     FFAster::Utils::device_malloc<char>(&tmp_memory,tmp_bytes);
+
+    //allocate memory on host for periodogram
+    std::vector<FFAster::ffa_output_t> host_output;
+    host_output.resize(output_bytes/sizeof(FFAster::ffa_output_t));
+    
+    //allocate memory on host for temporary peaks
+    std::vector<FFAster::ffa_output_t> peaks;
+    
+    //allocate memory for post harmonic matched peaks
+    std::vector<FFAster::ffa_output_t> hpeaks;
+
+    //allocate memory on host for final peaks
+    std::vector<FFAster::ffa_peaks_t> final_peaks;
+        
+    //allocate device memory for ffa output
     FFAster::ffa_output_t* output;
     FFAster::Utils::device_malloc<char>((char**)&output,output_bytes);
     plan.set_tmp_storage_buffer((void*) tmp_memory,tmp_bytes);
@@ -288,9 +338,36 @@ int main(int argc, char **argv)
 	//Execute FFA
 	plan.execute(in,output);
 
-	//Write out periodogram
+	//Write out periodogram (temporary)
 	FFAster::Utils::dump_device_buffer<char>((char*)output,output_bytes,stream.str().c_str());
+	
+	//Copy periodograms to host
+	FFAster::Utils::d2hcpy(host_output.data(),output,host_output.size());
+	cudaDeviceSynchronize();
+
+	//Find peaks
+	peaks.clear();
+ 	FFAster::find_peaks(host_output,peaks,opts.ffa.thresh,
+			    opts.ffa.lthresh,opts.ffa.dthresh);
+
+	//Burn harmonics
+	hpeaks.clear();
+	FFAster::discard_harmonics(peaks,hpeaks,opts.ffa.tolerance,opts.ffa.max_harm);
+	
+	//copy peaks to final_peaks
+	for (auto& row: hpeaks){
+	    ffa_peaks_t peak = {row.snr,row.width,row.period,device_input.metadata.dm};
+	    final_peaks.push_back(peak);
+	}
     }
+
+    //distill DM... TODO
+    
+    //write all peaks
+    FFAster::Utils::dump_host_buffer<char>((char*)(final_peaks.data()),
+					   final_peaks.size()*sizeof(FFAster::ffa_peaks_t),
+					   "peaks.bin");
+
     FFAster::Utils::device_free(tmp_memory);
     FFAster::Utils::device_free(output);
     return 0;

@@ -24,3 +24,5 @@ void FFAster::multiply_by_value(float *input,
   Kernels::multiply_by_value_k<<<nblocks,MAX_THREADS,0,stream>>>(input,output,size,value);
   Utils::check_cuda_error("Error from multiply_by_value kernel",stream);
 }
+
+

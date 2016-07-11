@@ -189,7 +189,7 @@ namespace FFAster {
     }
     
     inline
-    void print_stack_trace(unsigned int max_depth){
+   void print_stack_trace(unsigned int max_depth){
       int trace_depth;
       void *buffer[max_depth];
       char **strings;

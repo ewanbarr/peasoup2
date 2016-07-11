@@ -103,35 +103,6 @@ void Kernels::remove_interpolated_baseline_k(float* input,
     }
 }
 
-/* Removing cub depedency 
-   kernel replaced by block_reduce_k_2 
-   but should be changed over to thrust
-   whend fulyl merged into peasoup */
-/*
-__global__
-void Kernels::block_reduce_k(float *input,
-			     float *output,
-			     size_t size,
-			     bool square)
-{
-
-  typedef cub::BlockReduce<float, 1024> BlockReduce;
-  __shared__ typename BlockReduce::TempStorage temp_storage;
-  
-  int idx = blockDim.x * blockIdx.x + threadIdx.x;
-  int num_valid = min((int)blockDim.x,(int)( size - blockDim.x * blockIdx.x ));
-  
-  if (idx>=size)
-    return;
-  float data = input[idx];
-  if (square)
-    data = data*data;
-  float sum = BlockReduce(temp_storage).Sum(data,num_valid);
-  if (threadIdx.x==0)
-    output[blockIdx.x] = sum;
-}
-*/
-
 __global__
 void Kernels::block_reduce_k_2(float *input,
 			       float *output,

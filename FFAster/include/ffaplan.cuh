@@ -9,6 +9,10 @@
 #include "detrend.cuh"
 #include "snengine.cuh"
 
+#include "transforms/clip.cuh"
+#include "thrust/copy.h"
+#include "data_types/timeseries.cuh"
+
 namespace FFAster
 {
   
@@ -291,7 +295,7 @@ namespace FFAster
     void execute(float* input, ffa_output_t* output)
     {
       
-      Utils::dump_device_buffer<float>(input,size,"input.bin");
+	//Utils::dump_device_buffer<float>(input,size,"input.bin");
       
       allocate_internal_memory();
       CachedDownsampler downsampler(input,size,32);

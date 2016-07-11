@@ -47,8 +47,9 @@ include(cuda)
 
 # === set up default cuda flags
 #set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_20,code=sm_20")
-#set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_30,code=sm_30")
-set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_35,code=sm_35")
+#set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_25,code=sm_25")
+set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_30,code=sm_30")
+#set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_35,code=sm_35")
 #set (CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode=arch=compute_50,code=sm_50")
 
 # === set up project includes

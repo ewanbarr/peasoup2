@@ -12,6 +12,7 @@ set(
     test_dedisperser.cu
     test_zapper.cu
     test_pad.cu    
+    test_clip.cu
     gtest_transforms.cu
     )
 

@@ -54,6 +54,15 @@ namespace FFAster {
     int width;
     float period;
   };
+
+  struct ffa_peaks_t
+  {
+      float snr;
+      int width;
+      float period;
+      float dm;
+  };
+
 };
 
 #endif
