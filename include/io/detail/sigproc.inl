@@ -30,12 +30,13 @@ namespace peasoup {
 		int len;
 		char c_str[80];
 		stream->read((char*)&len, sizeof(int));
-		if( len <= 0 || len >= 80 ){
+		if( len < 0 || len >= 80 ){
 		    std::stringstream error_msg;
 		    error_msg << "Invalid length for header key: " << std::to_string(len);
 		    throw_sigproc_error(stream->get_handle(),error_msg.str());
 		}
-		stream->read(c_str, len*sizeof(char));
+		if (len>0)
+		    stream->read(c_str, len*sizeof(char));
 		c_str[len] = '\0';
 		str = c_str;
 	    }

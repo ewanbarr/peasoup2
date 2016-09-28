@@ -339,7 +339,7 @@ int main(int argc, char **argv)
 	plan.execute(in,output);
 
 	//Write out periodogram (temporary)
-	FFAster::Utils::dump_device_buffer<char>((char*)output,output_bytes,stream.str().c_str());
+	//FFAster::Utils::dump_device_buffer<char>((char*)output,output_bytes,stream.str().c_str());
 	
 	//Copy periodograms to host
 	FFAster::Utils::d2hcpy(host_output.data(),output,host_output.size());
@@ -363,10 +363,13 @@ int main(int argc, char **argv)
 
     //distill DM... TODO
     
+    std::stringstream peaks_fname;
+    peaks_fname << opts.outdir << "/" << "ffaster_peaks" << ".bin";
+
     //write all peaks
     FFAster::Utils::dump_host_buffer<char>((char*)(final_peaks.data()),
 					   final_peaks.size()*sizeof(FFAster::ffa_peaks_t),
-					   "peaks.bin");
+					   peaks_fname.str());
 
     FFAster::Utils::device_free(tmp_memory);
     FFAster::Utils::device_free(output);
